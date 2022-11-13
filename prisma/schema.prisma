@@ -14,10 +14,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Example {
+model Transaction {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  name      String
+  date      DateTime
+  category  String
+  value     Float
 }
 
 model Credentials {
