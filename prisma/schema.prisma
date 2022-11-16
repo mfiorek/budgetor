@@ -18,6 +18,7 @@ model Transaction {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isExpense Boolean
   name      String
   date      DateTime
   category  String

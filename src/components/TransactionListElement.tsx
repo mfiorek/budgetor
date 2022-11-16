@@ -13,7 +13,12 @@ const TransactionListElement: React.FC<TransactionListElementProps> = ({
       <div className={`flex w-full rounded py-2`}>
         <span className="w-1/4 px-2">{transaction.name}</span>
         <span className="w-1/4 px-2">{transaction.category}</span>
-        <span className="w-1/4 px-2 text-right">
+        <span
+          className={`w-1/4 px-2 text-right ${
+            transaction.isExpense ? "text-red-400" : "text-lime-500"
+          }`}
+        >
+          {transaction.isExpense && "-"}
           {transaction.value.toFixed(2)} zł
         </span>
         <span className="w-1/4 px-2 text-right">

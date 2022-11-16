@@ -18,12 +18,21 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
-  } = useForm<Transaction>();
+  } = useForm<Transaction>({
+    defaultValues: {
+      id: cuid(),
+      isExpense: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
 
   const utils = trpc.useContext();
   const { mutate } = trpc.transaction.add.useMutation({
-    onMutate: async ({ name, category, date, value }) => {
+    onMutate: async ({ isExpense, name, category, date, value }) => {
       await utils.transaction.getAll.cancel();
       const previousTransacions = utils.transaction.getAll.getData();
       if (previousTransacions) {
@@ -31,6 +40,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           ...previousTransacions,
           {
             id: cuid(),
+            isExpense,
             name,
             category,
             date,
@@ -49,8 +59,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const handleAdd: SubmitHandler<Transaction> = (data) => {
     setIsOpen(false);
-    const { name, category, date, value } = data;
+    const { isExpense, name, category, date, value } = data;
     mutate({
+      isExpense,
       name,
       category,
       date: new Date(date),
@@ -79,21 +90,48 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               onSubmit={handleSubmit(handleAdd)}
               className="mt-8 flex flex-col gap-4"
             >
-              <input
-                type="hidden"
-                {...register("id", { required: true })}
-                defaultValue={cuid()}
-              />
+              <input type="hidden" {...register("id", { required: true })} />
               <input
                 type="hidden"
                 {...register("createdAt", { required: true })}
-                defaultValue={new Date().toString()}
               />
               <input
                 type="hidden"
                 {...register("updatedAt", { required: true })}
-                defaultValue={new Date().toString()}
               />
+
+              {/* IS_EXPENSE: */}
+              <div className="flex justify-center gap-4">
+                <span
+                  onClick={() =>
+                    setValue("isExpense", false, { shouldDirty: true })
+                  }
+                  className={`cursor-pointer text-xl font-bold text-lime-600 transition-all duration-200 ${
+                    watch("isExpense") && "opacity-50"
+                  }`}
+                >
+                  Income
+                </span>
+                <input
+                  id="isExpense"
+                  type="checkbox"
+                  {...register("isExpense")}
+                  className="flex w-14 cursor-pointer appearance-none rounded-full bg-lime-300 bg-opacity-20 p-1 transition duration-200
+                before:grid before:h-6 before:w-6 before:rounded-full before:bg-lime-500 before:transition-all before:duration-200
+                checked:bg-red-300 checked:bg-opacity-20
+                checked:before:translate-x-6 checked:before:bg-red-500"
+                />
+                <span
+                  onClick={() =>
+                    setValue("isExpense", true, { shouldDirty: true })
+                  }
+                  className={`cursor-pointer text-xl font-bold text-red-600 transition-all duration-200 ${
+                    !watch("isExpense") && "opacity-50"
+                  }`}
+                >
+                  Expense
+                </span>
+              </div>
 
               {/* NAME: */}
               <label className="flex flex-col">

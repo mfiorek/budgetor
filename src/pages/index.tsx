@@ -42,10 +42,12 @@ const Home: NextPage = () => {
           />
         ))}
       </ul>
-      <AddTransactionModal
-        isOpen={isAddTransacionModalOpen}
-        setIsOpen={setIsAddTransacionModalOpen}
-      />
+      {isAddTransacionModalOpen && (
+        <AddTransactionModal
+          isOpen={isAddTransacionModalOpen}
+          setIsOpen={setIsAddTransacionModalOpen}
+        />
+      )}
     </Layout>
   );
 };
