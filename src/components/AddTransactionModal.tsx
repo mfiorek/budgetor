@@ -17,7 +17,6 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const {
     register,
     handleSubmit,
-    reset,
     watch,
     setValue,
     formState: { errors },
@@ -69,21 +68,20 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       date,
       value,
     });
-    reset();
   };
 
   return (
     <Dialog
       as="div"
-      className="relative z-10 text-neutral-50"
+      className="relative z-10 text-slate-50"
       open={isOpen}
       onClose={() => setIsOpen(false)}
     >
-      <div className="fixed inset-0 bg-black bg-opacity-25" />
+      <div className="fixed inset-0 bg-black bg-opacity-70" />
 
       <div className="fixed inset-0 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4 text-center">
-          <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-neutral-700 p-6 text-left align-middle shadow-xl transition-all">
+          <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-slate-700 p-6 text-left align-middle shadow-xl transition-all">
             <Dialog.Title as="h3" className="text-2xl font-bold leading-6">
               Add new transaction
             </Dialog.Title>
@@ -189,6 +187,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                       message: "Please provide positive value",
                     },
                   })}
+                  className={`${errors.value && "border border-red-500"}`}
                 />
                 {errors.value && (
                   <span className="text-red-500">{errors.value.message}</span>
@@ -205,11 +204,13 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                       value: true,
                       message: "Date can't be empty...",
                     },
+                    validate: (value) => !isNaN(value.getTime()) || "Date is invalid...",
                     valueAsDate: true,
                   })}
                   defaultValue={`${new Date().getFullYear()}-${
                     new Date().getMonth() + 1
                   }-${new Date().getDate()}`}
+                  className={`${errors.date && "border border-red-500"}`}
                 />
                 {errors.date && (
                   <span className="text-red-500">{errors.date.message}</span>
@@ -224,10 +225,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   Add
                 </button>
                 <button
-                  onClick={() => {
-                    setIsOpen(false);
-                    reset();
-                  }}
+                  onClick={() => setIsOpen(false)}
                   className="rounded bg-red-700 px-3 py-1 font-semibold hover:bg-red-600"
                 >
                   Cancel
