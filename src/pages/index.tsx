@@ -3,6 +3,7 @@ import { type NextPage } from "next";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
 import AddTransactionModal from "../components/AddTransactionModal";
+import Doughnut from "../components/Doughnut";
 import TransactionListElement from "../components/TransactionListElement";
 
 const Home: NextPage = () => {
@@ -15,11 +16,16 @@ const Home: NextPage = () => {
   }
   return (
     <Layout>
-      <h1 className="text-5xl font-extrabold text-slate-400">budgetor</h1>
-      <h1 className="text-xl font-extrabold text-slate-400">
-        Total:{" "}
-        {data.map((t) => t.value).reduce((partialSum, a) => partialSum + a, 0)}
-      </h1>
+      <Doughnut
+        income={data
+          .filter((t) => !t.isExpense)
+          .map((t) => t.value)
+          .reduce((partialSum, a) => partialSum + a, 0)}
+        expense={data
+          .filter((t) => t.isExpense)
+          .map((t) => t.value)
+          .reduce((partialSum, a) => partialSum + a, 0)}
+      />
       <div className="flex w-full justify-end">
         <button
           onClick={() => setIsAddTransacionModalOpen(true)}
