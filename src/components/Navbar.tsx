@@ -28,18 +28,8 @@ const Navbar = () => {
                   focus:outline-none focus-visible:bg-black focus-visible:bg-opacity-20
                   active:scale-95"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                className="inline-block h-5 w-5 stroke-slate-50"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                ></path>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-5 w-5 stroke-slate-50">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
               </svg>
               <span className="font-semibold">Menu</span>
             </Popover.Button>
@@ -56,45 +46,17 @@ const Navbar = () => {
                 <div className="overflow-hidden rounded-lg bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5">
                   <section className="flex flex-col items-start p-1">
                     {router.pathname !== "/" && (
-                      <Link
-                        href="/"
-                        className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="h-5 w-5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"
-                          />
+                      <Link href="/" className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
                         </svg>
                         <span>Month view</span>
                       </Link>
                     )}
                     {router.pathname !== "/year" && (
-                      <Link
-                        href="/year"
-                        className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="h-5 w-5"
-                        >
+                      <Link href="/year" className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -105,18 +67,8 @@ const Navbar = () => {
                       </Link>
                     )}
                     {router.pathname !== "/recurring" && (
-                      <Link
-                        href="/recurring"
-                        className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="h-5 w-5"
-                        >
+                      <Link href="/recurring" className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -138,28 +90,12 @@ const Navbar = () => {
                         signOut();
                       }}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        className="h-5 w-5 stroke-red-500"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"
-                        />
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} className="h-5 w-5 stroke-red-500">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
                       </svg>
                       <span>Logout {session?.user?.name}</span>
                       {isDisabled && (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 animate-spin"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          fill="currentColor"
-                        >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 animate-spin" viewBox="0 0 24 24" stroke="currentColor" fill="currentColor">
                           <path d="M12 22c5.421 0 10-4.579 10-10h-2c0 4.337-3.663 8-8 8s-8-3.663-8-8c0-4.336 3.663-8 8-8V2C6.579 2 2 6.58 2 12c0 5.421 4.579 10 10 10z" />
                         </svg>
                       )}

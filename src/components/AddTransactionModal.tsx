@@ -10,10 +10,7 @@ interface AddTransactionModalProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
-  isOpen,
-  setIsOpen,
-}) => {
+const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIsOpen }) => {
   const {
     register,
     handleSubmit,
@@ -71,12 +68,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   };
 
   return (
-    <Dialog
-      as="div"
-      className="relative z-10 text-slate-50"
-      open={isOpen}
-      onClose={() => setIsOpen(false)}
-    >
+    <Dialog as="div" className="relative z-10 text-slate-50" open={isOpen} onClose={() => setIsOpen(false)}>
       <div className="fixed inset-0 bg-black bg-opacity-70" />
 
       <div className="fixed inset-0 overflow-y-auto">
@@ -86,29 +78,16 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
               Add new transaction
             </Dialog.Title>
 
-            <form
-              onSubmit={handleSubmit(handleAdd)}
-              className="mt-8 flex flex-col gap-4"
-            >
+            <form onSubmit={handleSubmit(handleAdd)} className="mt-8 flex flex-col gap-4">
               <input type="hidden" {...register("id", { required: true })} />
-              <input
-                type="hidden"
-                {...register("createdAt", { required: true })}
-              />
-              <input
-                type="hidden"
-                {...register("updatedAt", { required: true })}
-              />
+              <input type="hidden" {...register("createdAt", { required: true })} />
+              <input type="hidden" {...register("updatedAt", { required: true })} />
 
               {/* IS_EXPENSE: */}
               <div className="flex justify-center gap-4">
                 <span
-                  onClick={() =>
-                    setValue("isExpense", false, { shouldDirty: true })
-                  }
-                  className={`cursor-pointer text-xl font-bold text-lime-600 transition-all duration-200 ${
-                    watch("isExpense") && "opacity-50"
-                  }`}
+                  onClick={() => setValue("isExpense", false, { shouldDirty: true })}
+                  className={`cursor-pointer text-xl font-bold text-lime-600 transition-all duration-200 ${watch("isExpense") && "opacity-50"}`}
                 >
                   Income
                 </span>
@@ -122,12 +101,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 checked:before:translate-x-6 checked:before:bg-red-500"
                 />
                 <span
-                  onClick={() =>
-                    setValue("isExpense", true, { shouldDirty: true })
-                  }
-                  className={`cursor-pointer text-xl font-bold text-red-600 transition-all duration-200 ${
-                    !watch("isExpense") && "opacity-50"
-                  }`}
+                  onClick={() => setValue("isExpense", true, { shouldDirty: true })}
+                  className={`cursor-pointer text-xl font-bold text-red-600 transition-all duration-200 ${!watch("isExpense") && "opacity-50"}`}
                 >
                   Expense
                 </span>
@@ -146,9 +121,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   })}
                   className={`${errors.name && "border border-red-500"}`}
                 />
-                {errors.name && (
-                  <span className="text-red-500">{errors.name.message}</span>
-                )}
+                {errors.name && <span className="text-red-500">{errors.name.message}</span>}
               </label>
 
               {/* CATEGORY: */}
@@ -163,11 +136,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                     },
                   })}
                 />
-                {errors.category && (
-                  <span className="text-red-500">
-                    {errors.category.message}
-                  </span>
-                )}
+                {errors.category && <span className="text-red-500">{errors.category.message}</span>}
               </label>
 
               {/* VALUE: */}
@@ -189,9 +158,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                   })}
                   className={`${errors.value && "border border-red-500"}`}
                 />
-                {errors.value && (
-                  <span className="text-red-500">{errors.value.message}</span>
-                )}
+                {errors.value && <span className="text-red-500">{errors.value.message}</span>}
               </label>
 
               {/* DATE: */}
@@ -207,27 +174,17 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                     validate: (value) => !isNaN(value.getTime()) || "Date is invalid...",
                     valueAsDate: true,
                   })}
-                  defaultValue={`${new Date().getFullYear()}-${
-                    new Date().getMonth() + 1
-                  }-${new Date().getDate()}`}
+                  defaultValue={`${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`}
                   className={`${errors.date && "border border-red-500"}`}
                 />
-                {errors.date && (
-                  <span className="text-red-500">{errors.date.message}</span>
-                )}
+                {errors.date && <span className="text-red-500">{errors.date.message}</span>}
               </label>
 
               <div className="mt-8 flex justify-end gap-2">
-                <button
-                  type="submit"
-                  className="rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600"
-                >
+                <button type="submit" className="rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">
                   Add
                 </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="rounded bg-red-700 px-3 py-1 font-semibold hover:bg-red-600"
-                >
+                <button onClick={() => setIsOpen(false)} className="rounded bg-red-700 px-3 py-1 font-semibold hover:bg-red-600">
                   Cancel
                 </button>
               </div>

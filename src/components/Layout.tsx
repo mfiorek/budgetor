@@ -7,17 +7,12 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
     <>
       <Head>
         <title>budgetor</title>
-        <meta
-          name="description"
-          content="budgetor - An app to keep track of your expences"
-        />
+        <meta name="description" content="budgetor - An app to keep track of your expences" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col">
         <Navbar />
-        <div className="flex grow flex-col items-center bg-slate-900 p-8 text-slate-200">
-          {children}
-        </div>
+        <div className="flex grow flex-col items-center bg-slate-900 p-8 text-slate-200">{children}</div>
       </main>
     </>
   );

@@ -32,21 +32,8 @@ const Doughnut: React.FC<DoughnutProps> = ({ income, expense }) => {
         </div>
       </div>
       <svg className="-rotate-90" style={{ width: size, height: size }}>
-        <circle
-          className="fill-transparent stroke-lime-700"
-          cx={center}
-          cy={center}
-          r={radius}
-          strokeWidth={width}
-        />
-        <circle
-          className="fill-transparent stroke-red-700"
-          cx={center}
-          cy={center}
-          r={radius}
-          strokeWidth={width}
-          strokeDasharray={dashArray}
-        />
+        <circle className="fill-transparent stroke-lime-700" cx={center} cy={center} r={radius} strokeWidth={width} />
+        <circle className="fill-transparent stroke-red-700" cx={center} cy={center} r={radius} strokeWidth={width} strokeDasharray={dashArray} />
       </svg>
     </div>
   );
