@@ -64,8 +64,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       isExpense,
       name,
       category,
-      date: new Date(date),
-      value: parseFloat(value.toString()),
+      date,
+      value,
     });
     reset();
   };
@@ -181,6 +181,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                       value: true,
                       message: "Value can't be empty...",
                     },
+                    valueAsNumber: true,
+                    min: {
+                      value: 0,
+                      message: "Please provide positive value",
+                    },
                   })}
                 />
                 {errors.value && (
@@ -198,7 +203,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                       value: true,
                       message: "Date can't be empty...",
                     },
+                    valueAsDate: true,
                   })}
+                  defaultValue={`${new Date().getFullYear()}-${
+                    new Date().getMonth() + 1
+                  }-${new Date().getDate()}`}
                 />
                 {errors.date && (
                   <span className="text-red-500">{errors.date.message}</span>
