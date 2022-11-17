@@ -15,6 +15,7 @@ const Home: NextPage = () => {
   }
   return (
     <Layout>
+      <input type="month" />
       <Doughnut
         income={data
           .filter((t) => !t.isExpense)
