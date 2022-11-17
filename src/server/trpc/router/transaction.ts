@@ -8,6 +8,7 @@ export const transactionRouter = router({
   add: protectedProcedure
     .input(
       z.object({
+        id: z.string(),
         isExpense: z.boolean(),
         name: z.string(),
         date: z.date(),
@@ -16,14 +17,29 @@ export const transactionRouter = router({
       })
     )
     .mutation(({ ctx, input }) => {
-      const { isExpense, name, category, date, value } = input;
+      const { id, isExpense, name, category, date, value } = input;
       return ctx.prisma.transaction.create({
         data: {
+          id,
           isExpense,
           name,
           category,
           date,
           value,
+        },
+      });
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      const { id } = input;
+      return ctx.prisma.transaction.delete({
+        where: {
+          id,
         },
       });
     }),

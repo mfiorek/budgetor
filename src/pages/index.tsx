@@ -35,7 +35,7 @@ const Home: NextPage = () => {
         </button>
       </div>
       <ul className="flex w-full flex-col gap-2 rounded-md bg-slate-700 bg-opacity-20 p-1">
-        <li className="flex w-full rounded bg-slate-700 py-2 font-extrabold">
+        <li className="flex w-full rounded bg-slate-700 py-2 font-extrabold pr-8">
           <span className="w-1/4 px-2">Name</span>
           <span className="w-1/4 px-2">Category</span>
           <span className="w-1/4 px-2 text-right">Value</span>

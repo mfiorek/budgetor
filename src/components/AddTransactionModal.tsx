@@ -32,14 +32,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const utils = trpc.useContext();
   const { mutate } = trpc.transaction.add.useMutation({
-    onMutate: async ({ isExpense, name, category, date, value }) => {
+    onMutate: async ({ id, isExpense, name, category, date, value }) => {
       await utils.transaction.getAll.cancel();
       const previousTransacions = utils.transaction.getAll.getData();
       if (previousTransacions) {
         utils.transaction.getAll.setData([
           ...previousTransacions,
           {
-            id: cuid(),
+            id,
             isExpense,
             name,
             category,
@@ -55,12 +55,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     onError: (error, variables, context) => {
       utils.transaction.getAll.setData(context);
     },
+    onSuccess: () => utils.transaction.getAll.invalidate(),
   });
 
   const handleAdd: SubmitHandler<Transaction> = (data) => {
     setIsOpen(false);
-    const { isExpense, name, category, date, value } = data;
+    const { id, isExpense, name, category, date, value } = data;
     mutate({
+      id,
       isExpense,
       name,
       category,
