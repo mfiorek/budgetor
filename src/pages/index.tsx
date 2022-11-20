@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { type NextPage } from "next";
+import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
 import AddTransactionModal from "../components/AddTransactionModal";
@@ -8,6 +9,7 @@ import Doughnut from "../components/Doughnut";
 import TransactionListElement from "../components/TransactionListElement";
 
 const Home: NextPage = () => {
+  useSession({ required: true });
   const [isAddTransacionModalOpen, setIsAddTransacionModalOpen] = useState(false);
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`));
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 2}`));

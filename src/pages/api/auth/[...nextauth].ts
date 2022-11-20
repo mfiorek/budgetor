@@ -6,6 +6,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "../../../server/db/client";
 
 export const authOptions: NextAuthOptions = {
+  pages: {
+    signIn: "/login",
+  },
   session: { strategy: "jwt" },
   // Include user.id on session
   // callbacks: {
