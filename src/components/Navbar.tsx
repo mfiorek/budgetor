@@ -46,43 +46,52 @@ const Navbar = () => {
                 <Popover.Panel className="absolute right-0 z-10 mt-1 min-w-max">
                   <div className="overflow-hidden rounded-lg bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5">
                     <section className="flex flex-col items-start p-1">
-                      {router.pathname !== "/" && (
-                        <Link href="/" className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
-                          </svg>
-                          <span>Month view</span>
-                        </Link>
-                      )}
-                      {router.pathname !== "/year" && (
-                        <Link href="/year" className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"
-                            />
-                          </svg>
-                          <span>Year view</span>
-                        </Link>
-                      )}
-                      {router.pathname !== "/recurring" && (
-                        <Link href="/recurring" className="flex w-full items-center gap-2 rounded px-3 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"
-                            />
-                          </svg>
-                          <span>Recurring transactions</span>
-                        </Link>
-                      )}
+                      <Link
+                        href="/"
+                        className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
+                          router.pathname === "/" && "bg-slate-700"
+                        }`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+                        </svg>
+                        <span>Month view</span>
+                      </Link>
+                      <Link
+                        href="/year"
+                        className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
+                          router.pathname === "/year" && "bg-slate-700"
+                        }`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"
+                          />
+                        </svg>
+                        <span>Year view</span>
+                      </Link>
+                      <Link
+                        href="/recurring"
+                        className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
+                          router.pathname === "/recurring" && "bg-slate-700"
+                        }`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"
+                          />
+                        </svg>
+                        <span>Recurring transactions</span>
+                      </Link>
                     </section>
                     <section className="flex flex-col border-t border-slate-700 p-1">
                       <button
-                        className="flex w-full items-center gap-2 rounded px-3 py-1.5
+                        className="flex w-full items-center gap-2 rounded px-2 py-1.5
                               hover:bg-red-500 hover:bg-opacity-50
                               disabled:cursor-not-allowed disabled:opacity-20"
                         disabled={isDisabled}
