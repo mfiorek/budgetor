@@ -1,4 +1,4 @@
-import React, { type Dispatch, type SetStateAction } from "react";
+import React, { useEffect, type Dispatch, type SetStateAction } from "react";
 import cuid from "cuid";
 import { Dialog } from "@headlessui/react";
 import { trpc } from "../utils/trpc";
@@ -16,6 +16,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
     handleSubmit,
     watch,
     setValue,
+    setFocus,
     formState: { errors },
   } = useForm<Transaction>({
     defaultValues: {
@@ -25,6 +26,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
       updatedAt: new Date(),
     },
   });
+
+  useEffect(() => {
+    setFocus("value");
+  }, [setFocus]);
 
   const utils = trpc.useContext();
   const { mutate } = trpc.transaction.add.useMutation({
@@ -72,7 +77,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
       <div className="fixed inset-0 bg-black bg-opacity-70" />
 
       <div className="fixed inset-0 overflow-y-auto">
-        <div className="flex min-h-full items-center justify-center p-4 text-center">
+        <div className="flex min-h-full items-center justify-center">
           <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-slate-700 p-6 text-left align-middle shadow-xl transition-all">
             <Dialog.Title as="h3" className="text-2xl font-bold leading-6">
               Add new transaction
@@ -108,6 +113,33 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
                 </span>
               </div>
 
+              {/* VALUE: */}
+              <label className="flex flex-col">
+                <input
+                  type="number"
+                  step="0.01"
+                  {...register("value", {
+                    required: {
+                      value: true,
+                      message: "Value can't be empty...",
+                    },
+                    valueAsNumber: true,
+                    min: {
+                      value: 0,
+                      message: "Please provide positive value",
+                    },
+                  })}
+                  defaultValue={Number(0).toFixed(2)}
+                  onBeforeInput={() => {
+                    if (watch("value") === 0) {
+                      setValue("value", NaN);
+                    }
+                  }}
+                  className={`bg-transparent text-center text-6xl font-bold [appearance:textfield] ${watch("isExpense") ? "text-red-600" : "text-lime-600"}`}
+                />
+                {errors.value && <span className="text-red-500">{errors.value.message}</span>}
+              </label>
+
               {/* NAME: */}
               <label className="flex flex-col">
                 <span>Name:</span>
@@ -135,30 +167,9 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
                       message: "Category can't be empty...",
                     },
                   })}
+                  className={`${errors.category && "border border-red-500"}`}
                 />
                 {errors.category && <span className="text-red-500">{errors.category.message}</span>}
-              </label>
-
-              {/* VALUE: */}
-              <label className="flex flex-col">
-                <span>Value:</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  {...register("value", {
-                    required: {
-                      value: true,
-                      message: "Value can't be empty...",
-                    },
-                    valueAsNumber: true,
-                    min: {
-                      value: 0,
-                      message: "Please provide positive value",
-                    },
-                  })}
-                  className={`${errors.value && "border border-red-500"}`}
-                />
-                {errors.value && <span className="text-red-500">{errors.value.message}</span>}
               </label>
 
               {/* DATE: */}
@@ -180,12 +191,12 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
                 {errors.date && <span className="text-red-500">{errors.date.message}</span>}
               </label>
 
-              <div className="mt-8 flex justify-end gap-2">
-                <button type="submit" className="rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">
-                  Add
-                </button>
-                <button onClick={() => setIsOpen(false)} className="rounded bg-red-700 px-3 py-1 font-semibold hover:bg-red-600">
+              <div className="mt-8 flex w-full gap-2">
+                <button onClick={() => setIsOpen(false)} className="text-ared-700 grow rounded border border-red-700 px-3 py-2 font-semibold hover:bg-red-600">
                   Cancel
+                </button>
+                <button type="submit" className="grow rounded bg-lime-700 px-3 py-2 font-semibold hover:bg-lime-600">
+                  Add
                 </button>
               </div>
             </form>
