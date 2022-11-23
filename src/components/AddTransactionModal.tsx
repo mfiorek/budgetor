@@ -167,14 +167,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
                   {categoriesData.map((category) => (
                     <label
                       key={category.id}
-                      className={`flex w-full flex-col items-center justify-center rounded p-2 ${
+                      className={`flex w-full select-none flex-col items-center justify-center rounded p-2 ${
                         watch("categoryId") === category.id ? "opacity-100 shadow-md shadow-slate-800" : "opacity-50"
                       }`}
                       style={{ backgroundColor: `${category.color}${watch("categoryId") === category.id ? "FF" : "66"}` }}
                     >
                       <span className="text-2xl">{category.iconSrc}</span>
                       <input type="radio" value={category.id} {...register("categoryId")} className="hidden" />
-                      <span className={`${watch("categoryId") === category.id && "font-bold"}`} style={{ textShadow: "0px 0px 2px black" }}>
+                      <span className={`text-center ${watch("categoryId") === category.id && "font-bold"}`} style={{ textShadow: "0px 0px 2px black" }}>
                         {category.name}
                       </span>
                     </label>
