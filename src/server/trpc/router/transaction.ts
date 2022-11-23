@@ -3,7 +3,11 @@ import { z } from "zod";
 
 export const transactionRouter = router({
   getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.transaction.findMany();
+    return ctx.prisma.transaction.findMany({
+      include: {
+        category: true,
+      },
+    });
   }),
   add: protectedProcedure
     .input(
@@ -12,18 +16,18 @@ export const transactionRouter = router({
         isExpense: z.boolean(),
         name: z.string(),
         date: z.date(),
-        category: z.string(),
+        categoryId: z.string().nullable(),
         value: z.number(),
       })
     )
     .mutation(({ ctx, input }) => {
-      const { id, isExpense, name, category, date, value } = input;
+      const { id, isExpense, name, categoryId, date, value } = input;
       return ctx.prisma.transaction.create({
         data: {
           id,
           isExpense,
           name,
-          category,
+          categoryId,
           date,
           value,
         },

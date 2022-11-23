@@ -1,16 +1,17 @@
 import React, { useEffect, type Dispatch, type SetStateAction } from "react";
-import cuid from "cuid";
+import { type Category, type Transaction } from "@prisma/client";
 import { Dialog } from "@headlessui/react";
 import { trpc } from "../utils/trpc";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { type Transaction } from "@prisma/client";
+import cuid from "cuid";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  categoriesData: Category[];
 }
 
-const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIsOpen }) => {
+const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIsOpen, categoriesData }) => {
   const {
     register,
     handleSubmit,
@@ -24,6 +25,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
       isExpense: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      categoryId: categoriesData[0]?.id,
     },
   });
 
@@ -32,22 +34,24 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
   }, [setFocus]);
 
   const utils = trpc.useContext();
-  const { mutate } = trpc.transaction.add.useMutation({
-    onMutate: async ({ id, isExpense, name, category, date, value }) => {
+  const { mutate: mutateAddTransacion } = trpc.transaction.add.useMutation({
+    onMutate: async ({ id, isExpense, name, categoryId, date, value }) => {
       await utils.transaction.getAll.cancel();
       const previousTransacions = utils.transaction.getAll.getData();
-      if (previousTransacions) {
+      const previousCategories = utils.category.getAll.getData();
+      if (previousTransacions && previousCategories) {
         utils.transaction.getAll.setData([
           ...previousTransacions,
           {
             id,
             isExpense,
             name,
-            category,
+            categoryId,
             date,
             value,
             createdAt: new Date(),
             updatedAt: new Date(),
+            category: previousCategories.find((category) => category.id === categoryId) || null,
           },
         ]);
       }
@@ -61,12 +65,12 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
 
   const handleAdd: SubmitHandler<Transaction> = (data) => {
     setIsOpen(false);
-    const { id, isExpense, name, category, date, value } = data;
-    mutate({
+    const { id, isExpense, name, categoryId, date, value } = data;
+    mutateAddTransacion({
       id,
       isExpense,
       name,
-      category,
+      categoryId,
       date,
       value,
     });
@@ -157,20 +161,26 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
               </label>
 
               {/* CATEGORY: */}
-              <label className="flex flex-col">
+              <div className="flex flex-col">
                 <span>Category:</span>
-                <input
-                  type="text"
-                  {...register("category", {
-                    required: {
-                      value: true,
-                      message: "Category can't be empty...",
-                    },
-                  })}
-                  className={`${errors.category && "border border-red-500"}`}
-                />
-                {errors.category && <span className="text-red-500">{errors.category.message}</span>}
-              </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {categoriesData.map((category) => (
+                    <label
+                      key={category.id}
+                      className={`flex w-full flex-col items-center justify-center rounded p-2 ${
+                        watch("categoryId") === category.id ? "opacity-100 shadow-md shadow-slate-800" : "opacity-50"
+                      }`}
+                      style={{ backgroundColor: `${category.color}${watch("categoryId") === category.id ? "FF" : "66"}` }}
+                    >
+                      <span className="text-2xl">{category.iconSrc}</span>
+                      <input type="radio" value={category.id} {...register("categoryId")} className="hidden" />
+                      <span className={`${watch("categoryId") === category.id && "font-bold"}`} style={{ textShadow: "0px 0px 2px black" }}>
+                        {category.name}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
 
               {/* DATE: */}
               <label className="flex flex-col">

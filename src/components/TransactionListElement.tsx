@@ -1,9 +1,9 @@
 import React from "react";
-import { type Transaction } from "@prisma/client";
+import { type Category, type Transaction } from "@prisma/client";
 import { trpc } from "../utils/trpc";
 
 interface TransactionListElementProps {
-  transaction: Transaction;
+  transaction: Transaction & { category: Category | null };
 }
 
 const TransactionListElement: React.FC<TransactionListElementProps> = ({ transaction }) => {
@@ -27,7 +27,15 @@ const TransactionListElement: React.FC<TransactionListElementProps> = ({ transac
     <li className="flex w-full items-center rounded bg-slate-800 even:bg-opacity-25">
       <div className={`flex w-full py-2`}>
         <span className="w-1/4 px-2">{transaction.name}</span>
-        <span className="w-1/4 px-2">{transaction.category}</span>
+        <span className="w-1/4 px-2">
+          {transaction.category ? (
+            <>
+              {transaction.category.iconSrc} {transaction.category.name}
+            </>
+          ) : (
+            <>-</>
+          )}
+        </span>
         <span className={`w-1/4 px-2 text-right ${transaction.isExpense ? "text-red-400" : "text-lime-500"}`}>
           {transaction.isExpense && "-"}
           {transaction.value.toFixed(2)} zł

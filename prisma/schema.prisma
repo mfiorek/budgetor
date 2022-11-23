@@ -14,15 +14,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Category {
+  id          String        @id @default(cuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  name        String        @unique
+  transaction Transaction[]
+  iconSrc     String
+  color       String
+}
+
 model Transaction {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isExpense Boolean
-  name      String
-  date      DateTime
-  category  String
-  value     Float
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isExpense  Boolean
+  value      Float
+  name       String
+  date       DateTime
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
 }
 
 model Credentials {
