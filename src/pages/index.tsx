@@ -3,6 +3,7 @@ import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
+import Loader from "../components/Loader";
 import AddTransactionModal from "../components/AddTransactionModal";
 import MonthSelector from "../components/MonthSelector";
 import Doughnut from "../components/Doughnut";
@@ -18,7 +19,11 @@ const Home: NextPage = () => {
   const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery();
 
   if (isTransactionsLoading || isCategoriesLoading || !transactionsData || !categoriesData) {
-    return <Layout>Loading...</Layout>;
+    return (
+      <Layout>
+        <Loader text="Loading transactions..." />
+      </Layout>
+    );
   }
   return (
     <Layout>

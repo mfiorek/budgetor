@@ -3,6 +3,7 @@ import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
+import Loader from "../components/Loader";
 import AddCategoryModal from "../components/AddCategoryModal";
 
 const SettingsPage: NextPage = () => {
@@ -11,7 +12,11 @@ const SettingsPage: NextPage = () => {
   const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery();
 
   if (isCategoriesLoading || !categoriesData) {
-    return <Layout>Loading...</Layout>;
+    return (
+      <Layout>
+        <Loader text="Loading settings..." />
+      </Layout>
+    );
   }
   return (
     <Layout>
