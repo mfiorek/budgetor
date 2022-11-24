@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { type Category } from "@prisma/client";
+import { trpc } from "../utils/trpc";
 import { Menu } from "@headlessui/react";
 import UpsertCategoryModal from "./UpsertCategoryModal";
 
@@ -9,6 +10,22 @@ interface CategoryListElementProps {
 
 const CategoryListElement: React.FC<CategoryListElementProps> = ({ category }) => {
   const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
+
+  const utils = trpc.useContext();
+  const { mutate: mutateDeleteCategory } = trpc.category.delete.useMutation({
+    onMutate: async ({ id }) => {
+      await utils.category.getAll.cancel();
+      const previousCategories = utils.category.getAll.getData();
+      if (previousCategories) {
+        utils.category.getAll.setData(previousCategories.filter((t) => t.id !== id));
+      }
+      return previousCategories;
+    },
+    onError: (error, variables, context) => {
+      utils.category.getAll.setData(context);
+    },
+    onSuccess: () => utils.category.getAll.invalidate(),
+  });
 
   return (
     <div key={category.id} className={`flex min-h-[3rem] select-none items-center justify-between rounded p-2`} style={{ backgroundColor: `${category.color}` }}>
@@ -46,7 +63,7 @@ const CategoryListElement: React.FC<CategoryListElementProps> = ({ category }) =
           <Menu.Item
             as="div"
             className="group flex w-full min-w-[7rem] items-center gap-2 rounded px-2 py-1.5 hover:bg-red-500 hover:bg-opacity-50"
-            onClick={() => console.log("TODO delete category:", category.name)}
+            onClick={() => mutateDeleteCategory({ id: category.id })}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} className="h-6 w-6 stroke-red-500 group-hover:stroke-slate-200">
               <path

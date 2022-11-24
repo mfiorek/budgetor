@@ -18,7 +18,7 @@ export const categoryRouter = router({
       const { id, name, color, iconSrc } = input;
       return ctx.prisma.category.upsert({
         where: {
-          id
+          id,
         },
         update: {
           name,
@@ -30,6 +30,20 @@ export const categoryRouter = router({
           name,
           color,
           iconSrc,
+        },
+      });
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      const { id } = input;
+      return ctx.prisma.category.delete({
+        where: {
+          id,
         },
       });
     }),
