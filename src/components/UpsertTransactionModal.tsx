@@ -5,28 +5,36 @@ import { trpc } from "../utils/trpc";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import cuid from "cuid";
 
-interface AddTransactionModalProps {
+interface UpsertTransactionModalProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   categoriesData: Category[];
+  editingTransaction?: Transaction;
 }
 
-const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIsOpen, categoriesData }) => {
+const UpsertTransactionModal: React.FC<UpsertTransactionModalProps> = ({ isOpen, setIsOpen, categoriesData, editingTransaction }) => {
   const {
     register,
     handleSubmit,
     watch,
     setValue,
     setFocus,
-    formState: { errors },
+    // existence of touchedFields somehow fixes issue with categoryId being set to null on first keystoke
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+    formState: { errors, touchedFields },
   } = useForm<Transaction>({
-    defaultValues: {
-      id: cuid(),
-      isExpense: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      categoryId: categoriesData[0]?.id,
-    },
+    defaultValues: editingTransaction
+      ? { ...editingTransaction, date: undefined }
+      : {
+          id: cuid(),
+          isExpense: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          categoryId: categoriesData[0]?.id,
+          name: "",
+          date: undefined,
+          value: undefined,
+        },
   });
 
   useEffect(() => {
@@ -34,14 +42,14 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
   }, [setFocus]);
 
   const utils = trpc.useContext();
-  const { mutate: mutateAddTransacion } = trpc.transaction.add.useMutation({
+  const { mutate: mutateUpsertTransacion } = trpc.transaction.upsert.useMutation({
     onMutate: async ({ id, isExpense, name, categoryId, date, value }) => {
       await utils.transaction.getAll.cancel();
       const previousTransacions = utils.transaction.getAll.getData();
       const previousCategories = utils.category.getAll.getData();
       if (previousTransacions && previousCategories) {
         utils.transaction.getAll.setData([
-          ...previousTransacions,
+          ...(editingTransaction ? previousTransacions.filter((t) => t.id !== id) : previousTransacions),
           {
             id,
             isExpense,
@@ -49,7 +57,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
             categoryId,
             date,
             value,
-            createdAt: new Date(),
+            createdAt: editingTransaction?.createdAt || new Date(),
             updatedAt: new Date(),
             category: previousCategories.find((category) => category.id === categoryId) || null,
           },
@@ -66,7 +74,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
   const handleAdd: SubmitHandler<Transaction> = (data) => {
     setIsOpen(false);
     const { id, isExpense, name, categoryId, date, value } = data;
-    mutateAddTransacion({
+    mutateUpsertTransacion({
       id,
       isExpense,
       name,
@@ -84,7 +92,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
         <div className="flex min-h-full items-center justify-center">
           <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-slate-700 p-6 text-left align-middle shadow-xl transition-all">
             <Dialog.Title as="h3" className="text-2xl font-bold leading-6">
-              Add new transaction
+              {editingTransaction ? "Edit transaction" : "Add new transaction"}
             </Dialog.Title>
 
             <form onSubmit={handleSubmit(handleAdd)} className="mt-8 flex flex-col gap-4">
@@ -172,8 +180,8 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
                       }`}
                       style={{ backgroundColor: `${category.color}${watch("categoryId") === category.id ? "FF" : "66"}` }}
                     >
+                      <input type="radio" {...register("categoryId")} value={category.id} className="hidden" />
                       <span className="text-2xl">{category.iconSrc}</span>
-                      <input type="radio" value={category.id} {...register("categoryId")} className="hidden" />
                       <span className={`text-center ${watch("categoryId") === category.id && "font-bold"}`} style={{ textShadow: "0px 0px 2px black" }}>
                         {category.name}
                       </span>
@@ -195,7 +203,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
                     validate: (value) => !isNaN(value.getTime()) || "Date is invalid...",
                     valueAsDate: true,
                   })}
-                  defaultValue={`${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`}
+                  defaultValue={
+                    editingTransaction
+                      ? `${editingTransaction.date.getFullYear()}-${editingTransaction.date.getMonth() + 1}-${editingTransaction.date.getDate()}`
+                      : `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`
+                  }
                   className={`${errors.date && "border border-red-500"}`}
                 />
                 {errors.date && <span className="text-red-500">{errors.date.message}</span>}
@@ -206,7 +218,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
                   Cancel
                 </button>
                 <button type="submit" className="grow rounded bg-lime-700 px-3 py-2 font-semibold hover:bg-lime-600">
-                  Add
+                  {editingTransaction ? "Save" : "Add"}
                 </button>
               </div>
             </form>
@@ -217,4 +229,4 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ isOpen, setIs
   );
 };
 
-export default AddTransactionModal;
+export default UpsertTransactionModal;

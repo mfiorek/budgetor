@@ -9,7 +9,7 @@ export const transactionRouter = router({
       },
     });
   }),
-  add: protectedProcedure
+  upsert: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -22,8 +22,18 @@ export const transactionRouter = router({
     )
     .mutation(({ ctx, input }) => {
       const { id, isExpense, name, categoryId, date, value } = input;
-      return ctx.prisma.transaction.create({
-        data: {
+      return ctx.prisma.transaction.upsert({
+        where: {
+          id,
+        },
+        update: {
+          isExpense,
+          name,
+          categoryId,
+          date,
+          value,
+        },
+        create: {
           id,
           isExpense,
           name,

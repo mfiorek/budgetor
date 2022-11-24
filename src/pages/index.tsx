@@ -4,14 +4,14 @@ import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
-import AddTransactionModal from "../components/AddTransactionModal";
+import UpsertTransactionModal from "../components/UpsertTransactionModal";
 import MonthSelector from "../components/MonthSelector";
 import Doughnut from "../components/Doughnut";
 import TransactionListElement from "../components/TransactionListElement";
 
 const Home: NextPage = () => {
   useSession({ required: true });
-  const [isAddTransacionModalOpen, setIsAddTransacionModalOpen] = useState(false);
+  const [isUpsertTransacionModalOpen, setIsUpsertTransacionModalOpen] = useState(false);
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`));
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 2}`));
 
@@ -43,7 +43,7 @@ const Home: NextPage = () => {
         />
       </div>
       <div className="flex w-full justify-end">
-        <button onClick={() => setIsAddTransacionModalOpen(true)} className="my-4 rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">
+        <button onClick={() => setIsUpsertTransacionModalOpen(true)} className="my-4 rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">
           Add
         </button>
       </div>
@@ -56,12 +56,12 @@ const Home: NextPage = () => {
         </li>
         {transactionsData
           .filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())
-          .sort((a, b) => b.date.getTime() - a.date.getTime())
+          .sort((a, b) => b.date.getTime() - a.date.getTime() || b.createdAt.getTime() - a.createdAt.getTime())
           .map((transaction) => (
-            <TransactionListElement key={transaction.id} transaction={transaction} />
+            <TransactionListElement key={transaction.id} transaction={transaction} categoriesData={categoriesData} />
           ))}
       </ul>
-      {isAddTransacionModalOpen && <AddTransactionModal isOpen={isAddTransacionModalOpen} setIsOpen={setIsAddTransacionModalOpen} categoriesData={categoriesData} />}
+      {isUpsertTransacionModalOpen && <UpsertTransactionModal isOpen={isUpsertTransacionModalOpen} setIsOpen={setIsUpsertTransacionModalOpen} categoriesData={categoriesData} />}
     </Layout>
   );
 };
