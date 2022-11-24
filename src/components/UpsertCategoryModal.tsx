@@ -15,6 +15,8 @@ const UpsertCategoryModal: React.FC<UpsertCategoryModalProps> = ({ isOpen, setIs
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<Category>({
     defaultValues: editingCategory || {
@@ -22,14 +24,15 @@ const UpsertCategoryModal: React.FC<UpsertCategoryModalProps> = ({ isOpen, setIs
       createdAt: new Date(),
       updatedAt: new Date(),
       color: "#334155",
-      iconSrc: "",
+      icon: "",
       name: "",
+      isExpense: true,
     },
   });
 
   const utils = trpc.useContext();
   const { mutate: mutateUpsertCategory } = trpc.category.upsert.useMutation({
-    onMutate: async ({ id, name, color, iconSrc }) => {
+    onMutate: async ({ id, name, color, icon, isExpense }) => {
       await utils.category.getAll.cancel();
       const previousCategories = utils.category.getAll.getData();
       if (previousCategories) {
@@ -41,7 +44,8 @@ const UpsertCategoryModal: React.FC<UpsertCategoryModalProps> = ({ isOpen, setIs
             updatedAt: new Date(),
             name,
             color,
-            iconSrc,
+            icon,
+            isExpense,
           },
         ]);
       }
@@ -55,12 +59,13 @@ const UpsertCategoryModal: React.FC<UpsertCategoryModalProps> = ({ isOpen, setIs
 
   const handleAdd: SubmitHandler<Category> = (data) => {
     setIsOpen(false);
-    const { id, name, color, iconSrc } = data;
+    const { id, name, color, icon, isExpense } = data;
     mutateUpsertCategory({
       id,
       name,
       color,
-      iconSrc,
+      icon,
+      isExpense,
     });
   };
 
@@ -77,6 +82,31 @@ const UpsertCategoryModal: React.FC<UpsertCategoryModalProps> = ({ isOpen, setIs
 
             <form onSubmit={handleSubmit(handleAdd)} className="mt-8 flex flex-col gap-4">
               <input type="hidden" {...register("id", { required: true })} />
+              
+              {/* IS_EXPENSE: */}
+              <div className="flex justify-center gap-4">
+                <span
+                  onClick={() => setValue("isExpense", false, { shouldDirty: true })}
+                  className={`cursor-pointer text-xl font-bold text-lime-600 transition-all duration-200 ${watch("isExpense") && "opacity-50"}`}
+                >
+                  Income
+                </span>
+                <input
+                  id="isExpense"
+                  type="checkbox"
+                  {...register("isExpense")}
+                  className="flex w-14 cursor-pointer appearance-none rounded-full bg-lime-300 bg-opacity-20 p-1 transition duration-200
+                before:grid before:h-6 before:w-6 before:rounded-full before:bg-lime-500 before:transition-all before:duration-200
+                checked:bg-red-300 checked:bg-opacity-20
+                checked:before:translate-x-6 checked:before:bg-red-500"
+                />
+                <span
+                  onClick={() => setValue("isExpense", true, { shouldDirty: true })}
+                  className={`cursor-pointer text-xl font-bold text-red-600 transition-all duration-200 ${!watch("isExpense") && "opacity-50"}`}
+                >
+                  Expense
+                </span>
+              </div>
 
               <div className="flex justify-between gap-2">
                 {/* COLOR: */}
@@ -98,8 +128,8 @@ const UpsertCategoryModal: React.FC<UpsertCategoryModalProps> = ({ isOpen, setIs
                 {/* ICON: */}
                 <label className="flex flex-col">
                   <span>Icon:</span>
-                  <input type="text" {...register("iconSrc")} className={`${errors.iconSrc && "border border-red-500"}`} />
-                  {errors.iconSrc && <span className="text-red-500">{errors.iconSrc.message}</span>}
+                  <input type="text" {...register("icon")} className={`${errors.icon && "border border-red-500"}`} />
+                  {errors.icon && <span className="text-red-500">{errors.icon.message}</span>}
                 </label>
               </div>
 

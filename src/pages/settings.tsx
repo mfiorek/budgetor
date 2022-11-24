@@ -20,21 +20,40 @@ const SettingsPage: NextPage = () => {
   }
   return (
     <Layout>
-      <div className="flex w-full flex-col gap-4">
+      <div className="flex w-full flex-col gap-8">
         <div className="flex items-center justify-between">
-          <h3 className="text-2xl">Categories:</h3>
-          <button className="rounded bg-slate-600 p-1 hover:bg-slate-500" onClick={() => setIsAddCategoryModalOpen(true)}>
+          <h1 className="text-3xl">Categories</h1>
+          <button className="gap1 flex items-center justify-center rounded bg-lime-700 p-2 hover:bg-lime-600 sm:min-w-[10rem]" onClick={() => setIsAddCategoryModalOpen(true)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
+            <span>Add new</span>
           </button>
         </div>
-        <div className="flex flex-col gap-2">
-          {categoriesData
-            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-            .map((category) => (
-              <CategoryListElement key={category.id} category={category} />
-            ))}
+        {/* Expense categories */}
+        <div className="flex w-full flex-col gap-4">
+          <h3 className="text-2xl">For expenses:</h3>
+          <div className="flex flex-col gap-2">
+            {categoriesData
+              .filter((category) => category.isExpense)
+              .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+              .map((category) => (
+                <CategoryListElement key={category.id} category={category} />
+              ))}
+          </div>
+        </div>
+
+        {/* Income categories */}
+        <div className="flex w-full flex-col gap-4">
+          <h3 className="text-2xl">For incomes:</h3>
+          <div className="flex flex-col gap-2">
+            {categoriesData
+              .filter((category) => !category.isExpense)
+              .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+              .map((category) => (
+                <CategoryListElement key={category.id} category={category} />
+              ))}
+          </div>
         </div>
       </div>
       {isAddCategoryModalOpen && <UpsertCategoryModal isOpen={isAddCategoryModalOpen} setIsOpen={setIsAddCategoryModalOpen} />}

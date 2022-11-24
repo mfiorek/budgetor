@@ -11,11 +11,12 @@ export const categoryRouter = router({
         id: z.string(),
         name: z.string(),
         color: z.string(),
-        iconSrc: z.string(),
+        icon: z.string(),
+        isExpense: z.boolean(),
       })
     )
     .mutation(({ ctx, input }) => {
-      const { id, name, color, iconSrc } = input;
+      const { id, name, color, icon, isExpense } = input;
       return ctx.prisma.category.upsert({
         where: {
           id,
@@ -23,13 +24,15 @@ export const categoryRouter = router({
         update: {
           name,
           color,
-          iconSrc,
+          icon,
+          isExpense,
         },
         create: {
           id,
           name,
           color,
-          iconSrc,
+          icon,
+          isExpense,
         },
       });
     }),

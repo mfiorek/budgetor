@@ -2,7 +2,7 @@ import React, { useEffect, type Dispatch, type SetStateAction } from "react";
 import { type Category, type Transaction } from "@prisma/client";
 import { Dialog } from "@headlessui/react";
 import { trpc } from "../utils/trpc";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import cuid from "cuid";
 
 interface UpsertTransactionModalProps {
@@ -14,6 +14,7 @@ interface UpsertTransactionModalProps {
 
 const UpsertTransactionModal: React.FC<UpsertTransactionModalProps> = ({ isOpen, setIsOpen, categoriesData, editingTransaction }) => {
   const {
+    control,
     register,
     handleSubmit,
     watch,
@@ -40,6 +41,11 @@ const UpsertTransactionModal: React.FC<UpsertTransactionModalProps> = ({ isOpen,
   useEffect(() => {
     setFocus("value");
   }, [setFocus]);
+
+  const isExpense = useWatch({ control, name: "isExpense" });
+  useEffect(() => {
+    setValue("categoryId", categoriesData.filter((category) => category.isExpense === isExpense).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())[0]?.id || null);
+  }, [categoriesData, isExpense, setValue]);
 
   const utils = trpc.useContext();
   const { mutate: mutateUpsertTransacion } = trpc.transaction.upsert.useMutation({
@@ -172,21 +178,24 @@ const UpsertTransactionModal: React.FC<UpsertTransactionModalProps> = ({ isOpen,
               <div className="flex flex-col">
                 <span>Category:</span>
                 <div className="grid grid-cols-4 gap-2">
-                  {categoriesData.map((category) => (
-                    <label
-                      key={category.id}
-                      className={`flex w-full select-none flex-col items-center justify-center rounded p-2 ${
-                        watch("categoryId") === category.id ? "opacity-100 shadow-md shadow-slate-800" : "opacity-50"
-                      }`}
-                      style={{ backgroundColor: `${category.color}${watch("categoryId") === category.id ? "FF" : "66"}` }}
-                    >
-                      <input type="radio" {...register("categoryId")} value={category.id} className="hidden" />
-                      <span className="text-2xl">{category.iconSrc}</span>
-                      <span className={`text-center ${watch("categoryId") === category.id && "font-bold"}`} style={{ textShadow: "0px 0px 2px black" }}>
-                        {category.name}
-                      </span>
-                    </label>
-                  ))}
+                  {categoriesData
+                    .filter((category) => category.isExpense === watch("isExpense"))
+                    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+                    .map((category) => (
+                      <label
+                        key={category.id}
+                        className={`flex w-full select-none flex-col items-center justify-center rounded p-2 ${
+                          watch("categoryId") === category.id ? "opacity-100 shadow-md shadow-slate-800" : "opacity-50"
+                        }`}
+                        style={{ backgroundColor: `${category.color}${watch("categoryId") === category.id ? "FF" : "66"}` }}
+                      >
+                        <input type="radio" {...register("categoryId")} value={category.id} className="hidden" />
+                        <span className="text-2xl">{category.icon}</span>
+                        <span className={`text-center ${watch("categoryId") === category.id && "font-bold"}`} style={{ textShadow: "0px 0px 2px black" }}>
+                          {category.name}
+                        </span>
+                      </label>
+                    ))}
                 </div>
               </div>
 

@@ -20,14 +20,15 @@ model Category {
   updatedAt   DateTime      @updatedAt
   name        String        @unique
   transaction Transaction[]
-  iconSrc     String
+  icon        String
   color       String
+  isExpense   Boolean
 }
 
 model Transaction {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   isExpense  Boolean
   value      Float
   name       String

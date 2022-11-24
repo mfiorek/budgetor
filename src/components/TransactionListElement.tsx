@@ -35,7 +35,7 @@ const TransactionListElement: React.FC<TransactionListElementProps> = ({ transac
         <span className="w-1/4 px-2">
           {transaction.category ? (
             <>
-              {transaction.category.iconSrc} {transaction.category.name}
+              {transaction.category.icon} {transaction.category.name}
             </>
           ) : (
             <>-</>
