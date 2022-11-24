@@ -4,7 +4,8 @@ import { useSession } from "next-auth/react";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
-import AddCategoryModal from "../components/AddCategoryModal";
+import UpsertCategoryModal from "../components/UpsertCategoryModal";
+import CategoryListElement from "../components/CategoryListElement";
 
 const SettingsPage: NextPage = () => {
   useSession({ required: true });
@@ -20,7 +21,7 @@ const SettingsPage: NextPage = () => {
   }
   return (
     <Layout>
-      <div className="flex flex-col gap-4">
+      <div className="flex w-full flex-col gap-4">
         <div className="flex items-center justify-between">
           <h3 className="text-2xl">Categories:</h3>
           <button className="rounded bg-slate-600 p-1 hover:bg-slate-500" onClick={() => setIsAddCategoryModalOpen(true)}>
@@ -29,18 +30,15 @@ const SettingsPage: NextPage = () => {
             </svg>
           </button>
         </div>
-        <div className="grid grid-cols-4 gap-2">
-          {categoriesData.map((category) => (
-            <label key={category.id} className={`flex w-24 select-none flex-col items-center justify-center rounded p-2`} style={{ backgroundColor: `${category.color}` }}>
-              <span className="text-2xl">{category.iconSrc}</span>
-              <span className="text-center" style={{ textShadow: "0px 0px 2px black" }}>
-                {category.name}
-              </span>
-            </label>
-          ))}
+        <div className="flex flex-col gap-2">
+          {categoriesData
+            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+            .map((category) => (
+              <CategoryListElement key={category.id} category={category} />
+            ))}
         </div>
       </div>
-      {isAddCategoryModalOpen && <AddCategoryModal isOpen={isAddCategoryModalOpen} setIsOpen={setIsAddCategoryModalOpen} />}
+      {isAddCategoryModalOpen && <UpsertCategoryModal isOpen={isAddCategoryModalOpen} setIsOpen={setIsAddCategoryModalOpen} />}
     </Layout>
   );
 };

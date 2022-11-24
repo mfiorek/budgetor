@@ -5,18 +5,19 @@ import { trpc } from "../utils/trpc";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import cuid from "cuid";
 
-interface AddCategoryModalProps {
+interface UpsertCategoryModalProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  editingCategory?: Category;
 }
 
-const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, setIsOpen }) => {
+const UpsertCategoryModal: React.FC<UpsertCategoryModalProps> = ({ isOpen, setIsOpen, editingCategory }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Category>({
-    defaultValues: {
+    defaultValues: editingCategory || {
       id: cuid(),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -27,16 +28,16 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, setIsOpen }
   });
 
   const utils = trpc.useContext();
-  const { mutate: mutateAddCategory } = trpc.category.add.useMutation({
+  const { mutate: mutateUpsertCategory } = trpc.category.upsert.useMutation({
     onMutate: async ({ id, name, color, iconSrc }) => {
       await utils.category.getAll.cancel();
       const previousCategories = utils.category.getAll.getData();
       if (previousCategories) {
         utils.category.getAll.setData([
-          ...previousCategories,
+          ...(editingCategory ? previousCategories.filter((t) => t.id !== id) : previousCategories),
           {
             id,
-            createdAt: new Date(),
+            createdAt: editingCategory?.createdAt || new Date(),
             updatedAt: new Date(),
             name,
             color,
@@ -55,7 +56,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, setIsOpen }
   const handleAdd: SubmitHandler<Category> = (data) => {
     setIsOpen(false);
     const { id, name, color, iconSrc } = data;
-    mutateAddCategory({
+    mutateUpsertCategory({
       id,
       name,
       color,
@@ -71,7 +72,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, setIsOpen }
         <div className="flex min-h-full items-center justify-center">
           <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-slate-700 p-6 text-left align-middle shadow-xl transition-all">
             <Dialog.Title as="h3" className="text-2xl font-bold leading-6">
-              Add new category
+              {editingCategory ? "Edit category" : "Add new category"}
             </Dialog.Title>
 
             <form onSubmit={handleSubmit(handleAdd)} className="mt-8 flex flex-col gap-4">
@@ -123,7 +124,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, setIsOpen }
                   Cancel
                 </button>
                 <button type="submit" className="grow rounded bg-lime-700 px-3 py-2 font-semibold hover:bg-lime-600">
-                  Add
+                  {editingCategory ? "Save" : "Add"}
                 </button>
               </div>
             </form>
@@ -134,4 +135,4 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ isOpen, setIsOpen }
   );
 };
 
-export default AddCategoryModal;
+export default UpsertCategoryModal;

@@ -5,7 +5,7 @@ export const categoryRouter = router({
   getAll: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.category.findMany();
   }),
-  add: protectedProcedure
+  upsert: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -16,8 +16,16 @@ export const categoryRouter = router({
     )
     .mutation(({ ctx, input }) => {
       const { id, name, color, iconSrc } = input;
-      return ctx.prisma.category.create({
-        data: {
+      return ctx.prisma.category.upsert({
+        where: {
+          id
+        },
+        update: {
+          name,
+          color,
+          iconSrc,
+        },
+        create: {
           id,
           name,
           color,
