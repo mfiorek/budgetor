@@ -1,11 +1,25 @@
 import React from "react";
-import { type NextPage } from "next";
-import { useSession } from "next-auth/react";
+import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import Layout from "../components/Layout";
 
 const RecurringPage: NextPage = () => {
-  useSession({ required: true });
   return <Layout>Coming soon: Recurring transactions</Layout>;
 };
 
 export default RecurringPage;
+
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
+  const session = await getServerAuthSession(context);
+  if (!session?.user) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+};

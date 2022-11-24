@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { type NextPage } from "next";
-import { useSession } from "next-auth/react";
+import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
@@ -10,7 +10,6 @@ import Doughnut from "../components/Doughnut";
 import TransactionListElement from "../components/TransactionListElement";
 
 const Home: NextPage = () => {
-  useSession({ required: true });
   const [isUpsertTransacionModalOpen, setIsUpsertTransacionModalOpen] = useState(false);
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`));
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 2}`));
@@ -67,3 +66,18 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
+  const session = await getServerAuthSession(context);
+  if (!session?.user) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+};

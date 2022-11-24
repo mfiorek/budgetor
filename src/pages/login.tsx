@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
@@ -73,3 +75,18 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
+  const session = await getServerAuthSession(context);
+  if (session?.user) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+};

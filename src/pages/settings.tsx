@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { type NextPage } from "next";
-import { useSession } from "next-auth/react";
+import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
@@ -8,7 +8,6 @@ import UpsertCategoryModal from "../components/UpsertCategoryModal";
 import CategoryListElement from "../components/CategoryListElement";
 
 const SettingsPage: NextPage = () => {
-  useSession({ required: true });
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
   const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery();
 
@@ -44,3 +43,18 @@ const SettingsPage: NextPage = () => {
 };
 
 export default SettingsPage;
+
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
+  const session = await getServerAuthSession(context);
+  if (!session?.user) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+};
