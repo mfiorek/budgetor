@@ -11,8 +11,8 @@ const Navbar = () => {
   const [isDisabled, setIsDisabled] = useState(false);
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-slate-700 p-2 font-bold text-slate-50">
-      <div className="flex items-center justify-between">
+    <div className="sticky top-0 z-50 w-full bg-slate-700 font-bold text-slate-50">
+      <div className="mx-auto flex items-center justify-between p-2 lg:max-w-5xl">
         <div className="flex select-none items-center gap-2">
           <div className="relative h-6 w-6">
             <Image src="/logo.svg" alt="logo" layout="fill" />
