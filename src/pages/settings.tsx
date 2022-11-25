@@ -9,7 +9,7 @@ import CategoryListElement from "../components/CategoryListElement";
 
 const SettingsPage: NextPage = () => {
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);
-  const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery();
+  const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
 
   if (isCategoriesLoading || !categoriesData) {
     return (

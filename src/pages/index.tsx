@@ -4,18 +4,17 @@ import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
-import UpsertTransactionModal from "../components/UpsertTransactionModal";
 import MonthSelector from "../components/MonthSelector";
 import Doughnut from "../components/Doughnut";
 import TransactionListElement from "../components/TransactionListElement";
+import Link from "next/link";
 
 const Home: NextPage = () => {
-  const [isUpsertTransacionModalOpen, setIsUpsertTransacionModalOpen] = useState(false);
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`));
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 2}`));
 
-  const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getAll.useQuery();
-  const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery();
+  const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
+  const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
 
   if (isTransactionsLoading || isCategoriesLoading || !transactionsData || !categoriesData) {
     return (
@@ -42,9 +41,9 @@ const Home: NextPage = () => {
         />
       </div>
       <div className="flex w-full justify-end">
-        <button onClick={() => setIsUpsertTransacionModalOpen(true)} className="my-4 rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">
-          Add
-        </button>
+        <Link href="/transaction">
+          <button className="my-4 rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">Add</button>
+        </Link>
       </div>
       <ul className="flex w-full flex-col gap-2 rounded-md bg-slate-700 bg-opacity-20 p-1">
         <li className="flex w-full rounded bg-slate-700 py-2 pr-8 font-extrabold">
@@ -57,10 +56,9 @@ const Home: NextPage = () => {
           .filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())
           .sort((a, b) => b.date.getTime() - a.date.getTime() || b.createdAt.getTime() - a.createdAt.getTime())
           .map((transaction) => (
-            <TransactionListElement key={transaction.id} transaction={transaction} categoriesData={categoriesData} />
+            <TransactionListElement key={transaction.id} transaction={transaction} />
           ))}
       </ul>
-      {isUpsertTransacionModalOpen && <UpsertTransactionModal isOpen={isUpsertTransacionModalOpen} setIsOpen={setIsUpsertTransacionModalOpen} categoriesData={categoriesData} />}
     </Layout>
   );
 };
