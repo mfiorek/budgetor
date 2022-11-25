@@ -71,7 +71,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
   });
 
   const handleAdd: SubmitHandler<Transaction> = (data) => {
-    // router.push("/");
     router.back();
     const { id, isExpense, name, categoryId, date, value } = data;
     mutateUpsertTransacion({

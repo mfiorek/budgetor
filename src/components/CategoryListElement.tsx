@@ -1,16 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { type Category } from "@prisma/client";
 import { trpc } from "../utils/trpc";
 import { Menu } from "@headlessui/react";
-import UpsertCategoryModal from "./UpsertCategoryModal";
+import Link from "next/link";
 
 interface CategoryListElementProps {
   category: Category;
 }
 
 const CategoryListElement: React.FC<CategoryListElementProps> = ({ category }) => {
-  const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
-
   const utils = trpc.useContext();
   const { mutate: mutateDeleteCategory } = trpc.category.delete.useMutation({
     onMutate: async ({ id }) => {
@@ -46,19 +44,20 @@ const CategoryListElement: React.FC<CategoryListElementProps> = ({ category }) =
           </svg>
         </Menu.Button>
         <Menu.Items className="absolute right-0 z-10 min-w-max rounded-lg bg-slate-700 p-1">
-          <Menu.Item
-            as="div"
-            className="mb-1 flex w-full min-w-[7rem] items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-500 hover:bg-opacity-25"
-            onClick={() => setIsEditCategoryModalOpen(true)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
-              />
-            </svg>
-            <span>Edit</span>
+          <Menu.Item>
+            <Link
+              href={{ pathname: "/category", query: { id: category.id } }}
+              className="mb-1 flex w-full min-w-[7rem] items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-500 hover:bg-opacity-25"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
+                />
+              </svg>
+              <span>Edit</span>
+            </Link>
           </Menu.Item>
           <Menu.Item
             as="div"
@@ -76,7 +75,6 @@ const CategoryListElement: React.FC<CategoryListElementProps> = ({ category }) =
           </Menu.Item>
         </Menu.Items>
       </Menu>
-      {isEditCategoryModalOpen && <UpsertCategoryModal isOpen={isEditCategoryModalOpen} setIsOpen={setIsEditCategoryModalOpen} editingCategory={category} />}
     </div>
   );
 };
