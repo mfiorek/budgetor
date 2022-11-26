@@ -1,9 +1,21 @@
 import React, { useState } from "react";
 import { type Category, type Transaction } from "@prisma/client";
 import { trpc } from "../utils/trpc";
-import { createColumnHelper, useReactTable, flexRender, getCoreRowModel, getSortedRowModel, type RowData, type SortingState } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  useReactTable,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  getGroupedRowModel,
+  getExpandedRowModel,
+  type RowData,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Menu } from "@headlessui/react";
 import Link from "next/link";
+import { useAtomValue } from "jotai";
+import { groupColumnsAtom } from "../state/atoms";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -83,34 +95,32 @@ interface TanTableProps {
 }
 const TanTable: React.FC<TanTableProps> = ({ data }) => {
   const [sorting, setSorting] = useState<SortingState>([{ id: "date", desc: true }]);
+  const groupingAtom = useAtomValue(groupColumnsAtom);
 
   const columnHelper = createColumnHelper<Transaction & { category: Category | null }>();
   const columns = [
     columnHelper.accessor("name", {
-      header: () => <span className="text-left">Name</span>,
-      cell: (info) => <span className="">{info.getValue()}</span>,
+      header: () => <span>Name</span>,
+      cell: (info) => <span>{info.getValue()}</span>,
     }),
     columnHelper.accessor("category.name", {
-      header: () => <span className="text-left">Category</span>,
+      header: () => <span>Category</span>,
       cell: (info) => (
-        <span className="">
+        <span>
           {info.row.original.category?.icon} {info.getValue()}
         </span>
       ),
     }),
-    columnHelper.accessor("value", {
-      header: () => <span className="w-full text-right">Value</span>,
-      cell: (info) => (
-        <span className={`block text-right ${info.row.original.isExpense ? "text-red-400" : "text-lime-500"}`}>
-          {info.row.original.isExpense && "-"}
-          {info.getValue().toFixed(2)} zł
-        </span>
-      ),
-      sortingFn: (a, b) => (a.original.isExpense ? -1 : 1) * a.original.value - (b.original.isExpense ? -1 : 1) * b.original.value,
+    columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value, {
+      id: "value",
+      header: (props) => <span className={`${props.column.getIsGrouped() || "w-full text-right"}`}>Value</span>,
+      cell: (info) => <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>,
+      aggregatedCell: (info) => <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>,
     }),
     columnHelper.accessor("date", {
-      header: () => <span className="w-full text-right">Date</span>,
+      header: (props) => <span className={`${props.column.getIsGrouped() || "w-full text-right"}`}>Date</span>,
       cell: (info) => <span className="block text-right">{info.getValue().toLocaleDateString()}</span>,
+      aggregatedCell: () => null,
       sortingFn: (a, b) => a.original.date.getTime() - b.original.date.getTime() || a.original.createdAt.getTime() - b.original.createdAt.getTime(),
     }),
     columnHelper.display({
@@ -121,6 +131,7 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
           <RowMenu transaction={props.row.original} />
         </span>
       ),
+      enableGrouping: false,
       meta: { isDisplayColumn: true },
     }),
   ];
@@ -129,10 +140,13 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
     columns,
     state: {
       sorting,
+      grouping: groupingAtom,
     },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getGroupedRowModel: getGroupedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   return (
@@ -146,26 +160,37 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
                 className={`flex cursor-pointer gap-2 ${header.column.columnDef.meta?.isDisplayColumn ? "w-6" : "w-1/4"}`}
                 onClick={header.column.getToggleSortingHandler()}
               >
-                {flexRender(header.column.columnDef.header, header.getContext())}
-                {!header.column.columnDef.meta?.isDisplayColumn
-                  ? {
-                      asc: (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-                        </svg>
-                      ),
-                      desc: (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
-                      ),
-                      false: (
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                        </svg>
-                      ),
-                    }[header.column.getIsSorted() as string]
-                  : null}
+                <div className="flex w-full gap-2">
+                  {header.column.getIsGrouped() && (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.5 8.25V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v8.25A2.25 2.25 0 006 16.5h2.25m8.25-8.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-7.5A2.25 2.25 0 018.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 00-2.25 2.25v6"
+                      />
+                    </svg>
+                  )}
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                  {!header.column.columnDef.meta?.isDisplayColumn
+                    ? {
+                        asc: (
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                          </svg>
+                        ),
+                        desc: (
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                          </svg>
+                        ),
+                        false: (
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                          </svg>
+                        ),
+                      }[header.column.getIsSorted() as string]
+                    : null}
+                </div>
               </th>
             ))}
           </tr>
@@ -176,7 +201,37 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
           <tr key={row.id} className="flex w-full items-center gap-2 rounded bg-slate-800 p-2 odd:bg-opacity-25">
             {row.getVisibleCells().map((cell) => (
               <td key={cell.id} className={`${cell.column.columnDef.meta?.isDisplayColumn ? "w-6" : "w-1/4"}`}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                {cell.getIsGrouped() ? (
+                  // If it's a grouped cell, add an expander and row count
+                  <>
+                    <button
+                      {...{
+                        onClick: row.getToggleExpandedHandler(),
+                        style: {
+                          cursor: row.getCanExpand() ? "pointer" : "normal",
+                        },
+                        className: "w-full flex gap-2",
+                      }}
+                    >
+                      {row.getIsExpanded() ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                      )}{" "}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())} ({row.subRows.length})
+                    </button>
+                  </>
+                ) : cell.getIsAggregated() ? (
+                  // If the cell is aggregated, use the Aggregated
+                  flexRender(cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell, cell.getContext())
+                ) : cell.getIsPlaceholder() ? null : ( // For cells with repeated values, render null
+                  // Otherwise, just render the regular cell
+                  flexRender(cell.column.columnDef.cell, cell.getContext())
+                )}
               </td>
             ))}
           </tr>

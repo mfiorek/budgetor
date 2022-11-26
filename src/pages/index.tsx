@@ -8,6 +8,7 @@ import MonthSelector from "../components/MonthSelector";
 import Doughnut from "../components/Doughnut";
 import Link from "next/link";
 import TanTable from "../components/TanTable";
+import TableControls from "../components/TableControls";
 
 const Home: NextPage = () => {
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`));
@@ -45,7 +46,8 @@ const Home: NextPage = () => {
           <button className="my-4 rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">Add</button>
         </Link>
       </div>
-      <TanTable data={transactionsData} />
+      <TableControls />
+      <TanTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
     </Layout>
   );
 };
