@@ -6,8 +6,8 @@ import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import MonthSelector from "../components/MonthSelector";
 import Doughnut from "../components/Doughnut";
-import TransactionListElement from "../components/TransactionListElement";
 import Link from "next/link";
+import TanTable from "../components/TanTable";
 
 const Home: NextPage = () => {
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`));
@@ -45,20 +45,7 @@ const Home: NextPage = () => {
           <button className="my-4 rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">Add</button>
         </Link>
       </div>
-      <ul className="flex w-full flex-col gap-2 rounded-md bg-slate-700 bg-opacity-20 p-1">
-        <li className="flex w-full rounded bg-slate-700 py-2 pr-8 font-extrabold">
-          <span className="w-1/4 px-2">Name</span>
-          <span className="w-1/4 px-2">Category</span>
-          <span className="w-1/4 px-2 text-right">Value</span>
-          <span className="w-1/4 px-2 text-right">Date</span>
-        </li>
-        {transactionsData
-          .filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())
-          .sort((a, b) => b.date.getTime() - a.date.getTime() || b.createdAt.getTime() - a.createdAt.getTime())
-          .map((transaction) => (
-            <TransactionListElement key={transaction.id} transaction={transaction} />
-          ))}
-      </ul>
+      <TanTable data={transactionsData} />
     </Layout>
   );
 };
