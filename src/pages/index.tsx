@@ -46,8 +46,10 @@ const Home: NextPage = () => {
           <button className="my-4 rounded bg-lime-700 px-3 py-1 font-semibold hover:bg-lime-600">Add</button>
         </Link>
       </div>
-      <TableControls />
-      <TanTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
+      <div className="flex w-full flex-col gap-4">
+        <TableControls />
+        <TanTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
+      </div>
     </Layout>
   );
 };

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Disclosure, Listbox } from "@headlessui/react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useAtom } from "jotai";
-import { groupColumnsAtom, searchAtom } from "../state/atoms";
+import { groupColumnsAtom, filterAtom } from "../state/atoms";
 
 const GroupForm = () => {
   const [groupColumnsAtomValue, setGroupColumnsAtomValue] = useAtom(groupColumnsAtom);
@@ -20,7 +20,7 @@ const GroupForm = () => {
   ];
 
   type GroupFormInputs = {
-    groupColumnIds: { columnId: string; columnName: string }[];
+    groupColumnIds: PossibleValuesType[];
   };
   const { control, register } = useForm<GroupFormInputs>({
     defaultValues: { groupColumnIds: groupColumnsAtomValue.map((av) => possibleValues.find((pv) => pv.columnId === av)) },
@@ -65,7 +65,7 @@ const GroupForm = () => {
       <Listbox onChange={append} as="div" className="relative w-max">
         {({ open }) => (
           <>
-            <Listbox.Button className="flex cursor-pointer items-center justify-center gap-2 rounded bg-lime-800 p-2 hover:bg-lime-700">
+            <Listbox.Button className="flex cursor-pointer items-center justify-center gap-2 rounded bg-sky-800 p-2 hover:bg-sky-700">
               <i className="pr-8">Add grouping by...</i>
               {open ? (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
@@ -98,17 +98,17 @@ const GroupForm = () => {
 };
 
 const FilterForm = () => {
-  const [searchAtomValue, setSearchAtomValue] = useAtom(searchAtom);
+  const [filterAtomValue, setFilterAtomValue] = useAtom(filterAtom);
 
   return (
     <div className="flex w-full flex-col gap-2">
       <span className="text-lg font-bold">Filter rows by:</span>
       <div className="relative">
-        <input className="w-full p-2" value={searchAtomValue.join(" ")} onChange={(e) => setSearchAtomValue(e.target.value.split(" "))} placeholder="Type keywords..." />
-        {!!searchAtomValue.length && (
+        <input className="w-full p-2" value={filterAtomValue.join(" ")} onChange={(e) => setFilterAtomValue(e.target.value.split(" "))} placeholder="Type keywords..." />
+        {!!filterAtomValue.length && (
           <div className="absolute right-0 top-0 flex h-full justify-end p-1">
             <button
-              onClick={() => setSearchAtomValue([])}
+              onClick={() => setFilterAtomValue([])}
               className="flex h-8 w-8 items-center justify-center rounded bg-red-500 bg-opacity-50 p-2 hover:bg-red-400 hover:bg-opacity-50"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
@@ -123,22 +123,48 @@ const FilterForm = () => {
 };
 
 const TableControls = () => {
+  const [groupColumnsAtomValue, setGroupColumnsAtomValue] = useAtom(groupColumnsAtom);
+  const [filterAtomValue, setFilterAtomValue] = useAtom(filterAtom);
+
   return (
     <Disclosure as="div" className="mb-2 w-full">
       {({ open }) => (
         <>
-          <Disclosure.Button className="flex items-center gap-2 rounded bg-lime-800 p-2 hover:bg-lime-700">
-            <span>Table options</span>
-            {open ? (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-              </svg>
+          <div className="flex flex-col justify-between gap-2 sm:flex-row">
+            <Disclosure.Button className="flex items-center gap-2 rounded border border-sky-800 bg-sky-800 p-2 hover:bg-sky-700">
+              <span>Table options</span>
+              {open ? (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                </svg>
+              )}
+            </Disclosure.Button>
+            {(!!groupColumnsAtomValue.length || !!filterAtomValue.length) && !open && (
+              <div className="flex items-center justify-between gap-2 rounded-md border border-amber-500 bg-slate-700 bg-opacity-20 p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} className="h-6 w-6 stroke-amber-500">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                  />
+                </svg>
+                <p>Group or filters applied!</p>
+                <button
+                  className="flex h-8 items-center justify-center rounded bg-red-500 bg-opacity-50 p-2 hover:bg-red-400 hover:bg-opacity-50"
+                  onClick={() => {
+                    setGroupColumnsAtomValue([]);
+                    setFilterAtomValue([]);
+                  }}
+                >
+                  Clear all
+                </button>
+              </div>
             )}
-          </Disclosure.Button>
+          </div>
           <Disclosure.Panel className="flex flex-col gap-8 rounded bg-slate-700 bg-opacity-20 p-2 sm:flex-row">
             <GroupForm />
             <FilterForm />

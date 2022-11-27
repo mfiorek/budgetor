@@ -1,4 +1,4 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
 export const groupColumnsAtom = atom<string[]>([]);
-export const searchAtom = atom<string[]>([]);
+export const filterAtom = atom<string[]>([]);

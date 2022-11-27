@@ -15,7 +15,7 @@ import {
 import { Menu } from "@headlessui/react";
 import Link from "next/link";
 import { useAtomValue } from "jotai";
-import { groupColumnsAtom, searchAtom } from "../state/atoms";
+import { groupColumnsAtom, filterAtom } from "../state/atoms";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -97,38 +97,38 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
   const [sorting, setSorting] = useState<SortingState>([{ id: "date", desc: true }]);
   const groupingAtom = useAtomValue(groupColumnsAtom);
 
-  const searchWords = useAtomValue(searchAtom);
+  const filterWords = useAtomValue(filterAtom);
   const [filteredData, setFilteredData] = useState<(Transaction & { category: Category | null })[]>([]);
 
   useEffect(() => {
     let dataToSearchIn = data;
-    searchWords.forEach((searchWord) => {
+    filterWords.forEach((filterWord) => {
       dataToSearchIn = dataToSearchIn.filter((transaction) => {
         const nameMatch =
           transaction.name
             .toLowerCase()
             .split(" ")
-            .findIndex((nameWord) => nameWord.startsWith(searchWord.toLocaleLowerCase())) !== -1;
+            .findIndex((nameWord) => nameWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
         const categoryMatch =
           transaction.category?.name
             .toLowerCase()
             .split(" ")
-            .findIndex((categoryWord) => categoryWord.startsWith(searchWord.toLocaleLowerCase())) !== -1;
+            .findIndex((categoryWord) => categoryWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
         const valueMatch =
           (transaction.isExpense ? (-transaction.value).toFixed(2) : transaction.value.toFixed(2))
             .split(" ")
-            .findIndex((valueString) => valueString.toLowerCase().startsWith(searchWord.toLocaleLowerCase())) !== -1;
+            .findIndex((valueString) => valueString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
         const dateMatch =
           transaction.date
             .toLocaleDateString()
             .split(" ")
-            .findIndex((valueString) => valueString.toLowerCase().startsWith(searchWord.toLocaleLowerCase())) !== -1;
+            .findIndex((dateString) => dateString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
 
         return nameMatch || categoryMatch || valueMatch || dateMatch;
       });
     });
     setFilteredData(dataToSearchIn || []);
-  }, [data, searchWords]);
+  }, [data, filterWords]);
 
   const columnHelper = createColumnHelper<Transaction & { category: Category | null }>();
   const columns = [
