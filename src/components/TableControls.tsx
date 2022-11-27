@@ -131,7 +131,7 @@ const TableControls = () => {
       {({ open }) => (
         <>
           <div className="flex flex-col justify-between gap-2 sm:flex-row">
-            <Disclosure.Button className="flex items-center gap-2 rounded border border-sky-800 bg-sky-800 p-2 hover:bg-sky-700">
+            <Disclosure.Button className={`flex items-center gap-2 rounded border border-sky-800 bg-sky-800 p-2 hover:bg-sky-700 ${open && "rounded-b-none border-b-0"}`}>
               <span>Table options</span>
               {open ? (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
@@ -165,7 +165,7 @@ const TableControls = () => {
               </div>
             )}
           </div>
-          <Disclosure.Panel className="flex flex-col gap-8 rounded bg-slate-700 bg-opacity-20 p-2 sm:flex-row">
+          <Disclosure.Panel className="flex flex-col gap-8 rounded-md rounded-t-none border border-sky-800 bg-slate-700 bg-opacity-20 p-2 sm:flex-row sm:rounded-tr">
             <GroupForm />
             <FilterForm />
           </Disclosure.Panel>

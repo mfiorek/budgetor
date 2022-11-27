@@ -22,13 +22,16 @@ const SettingsPage: NextPage = () => {
       <div className="flex w-full flex-col gap-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl">Categories</h1>
-          <Link href="/category">
-            <button className="gap1 flex items-center justify-center rounded bg-lime-700 p-2 hover:bg-lime-600 sm:min-w-[10rem]">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              <span>Add new</span>
-            </button>
+          <Link href="/category" className="flex items-center justify-center gap-2 rounded bg-lime-800 p-2 hover:bg-lime-700 sm:min-w-[10rem]">
+            <span>Add new</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+              />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
+            </svg>
           </Link>
         </div>
         {/* Expense categories */}
