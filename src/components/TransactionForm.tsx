@@ -83,6 +83,17 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
     });
   };
 
+  const getDateStringForInput = () => {
+    if (editingTransaction) {
+      const monthString = editingTransaction.date.getMonth() + 1 < 10 ? `0${editingTransaction.date.getMonth() + 1}` : `${editingTransaction.date.getMonth() + 1}`;
+      const dayString = editingTransaction.date.getDate() < 10 ? `0${editingTransaction.date.getDate()}` : `${editingTransaction.date.getDate()}`;
+      return `${editingTransaction.date.getFullYear()}-${monthString}-${dayString}`;
+    }
+    const monthString = new Date().getMonth() + 1 < 10 ? `0${new Date().getMonth() + 1}` : `${new Date().getMonth() + 1}`;
+    const dayString = new Date().getDate() < 10 ? `0${new Date().getDate()}` : `${new Date().getDate()}`;
+    return `${new Date().getFullYear()}-${monthString}-${dayString}`;
+  };
+
   return (
     <div className="w-full max-w-2xl text-left">
       <h3 className="text-2xl font-bold leading-6">{editingTransaction ? "Edit transaction" : "Add new transaction"}</h3>
@@ -198,11 +209,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
               validate: (value) => !isNaN(value.getTime()) || "Date is invalid...",
               valueAsDate: true,
             })}
-            defaultValue={
-              editingTransaction
-                ? `${editingTransaction.date.getFullYear()}-${editingTransaction.date.getMonth() + 1}-${editingTransaction.date.getDate()}`
-                : `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`
-            }
+            defaultValue={getDateStringForInput()}
             className={`${errors.date && "border border-red-500"}`}
           />
           {errors.date && <span className="text-red-500">{errors.date.message}</span>}
