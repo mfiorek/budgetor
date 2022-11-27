@@ -53,7 +53,10 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ editingCategory }) => {
     onError: (error, variables, context) => {
       utils.category.getAll.setData(context);
     },
-    onSuccess: () => utils.category.getAll.invalidate(),
+    onSuccess: () => {
+      utils.category.getAll.invalidate();
+      utils.transaction.getAll.invalidate();
+    },
   });
 
   const handleAdd: SubmitHandler<Category> = (data) => {
