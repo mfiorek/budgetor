@@ -20,7 +20,8 @@ import { groupColumnsAtom, filterAtom } from "../state/atoms";
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   interface ColumnMeta<TData extends RowData, TValue> {
-    isDisplayColumn: boolean;
+    isDisplayColumn?: boolean;
+    showOnMobile?: boolean;
   }
 }
 
@@ -134,27 +135,45 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
   const columns = [
     columnHelper.accessor("name", {
       header: () => <span>Name</span>,
-      cell: (info) => <span>{info.getValue()}</span>,
+      cell: (info) => (
+        <div className="text-left">
+          <p>{info.getValue()}</p>
+          {!info.cell.getIsGrouped() && (
+            <p className="text-xs sm:hidden">
+              {info.row.original.category?.icon} {info.row.original.category?.name}
+            </p>
+          )}
+        </div>
+      ),
+      meta: { showOnMobile: true },
     }),
     columnHelper.accessor("category.name", {
       header: () => <span>Category</span>,
       cell: (info) => (
-        <span>
+        <span className="whitespace-nowrap">
           {info.row.original.category?.icon} {info.getValue()}
         </span>
       ),
+      meta: { showOnMobile: false },
     }),
     columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value, {
       id: "value",
       header: (props) => <span className={`${props.column.getIsGrouped() || "w-full text-right"}`}>Value</span>,
-      cell: (info) => <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>,
-      aggregatedCell: (info) => <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>,
+      cell: (info) => (
+        <div className="w-full">
+          <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>
+          {!info.cell.getIsGrouped() && <p className="text-right text-xs sm:hidden">{info.row.original.date.toLocaleDateString()}</p>}
+        </div>
+      ),
+      aggregatedCell: (info) => <span className={`block w-full text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>,
+      meta: { showOnMobile: true },
     }),
     columnHelper.accessor("date", {
       header: (props) => <span className={`${props.column.getIsGrouped() || "w-full text-right"}`}>Date</span>,
       cell: (info) => <span className="block text-right">{info.getValue().toLocaleDateString()}</span>,
       aggregatedCell: () => null,
       sortingFn: (a, b) => a.original.date.getTime() - b.original.date.getTime() || a.original.createdAt.getTime() - b.original.createdAt.getTime(),
+      meta: { showOnMobile: false },
     }),
     columnHelper.display({
       id: "actions",
@@ -165,7 +184,7 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
         </span>
       ),
       enableGrouping: false,
-      meta: { isDisplayColumn: true },
+      meta: { isDisplayColumn: true, showOnMobile: true },
     }),
   ];
   const table = useReactTable({
@@ -190,7 +209,9 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
             {headerGroup.headers.map((header) => (
               <th
                 key={header.id}
-                className={`flex cursor-pointer gap-2 ${header.column.columnDef.meta?.isDisplayColumn ? "w-6" : "w-1/4"}`}
+                className={`flex cursor-pointer gap-2 ${header.column.columnDef.meta?.isDisplayColumn ? "w-6" : "flex flex-1"} ${
+                  !header.column.columnDef.meta?.showOnMobile && "hidden sm:block"
+                }`}
                 onClick={header.column.getToggleSortingHandler()}
               >
                 <div className="flex w-full gap-2">
@@ -233,7 +254,12 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
         {table.getRowModel().rows.map((row) => (
           <tr key={row.id} className="flex w-full items-center gap-2 rounded bg-slate-800 p-2 odd:bg-opacity-25">
             {row.getVisibleCells().map((cell) => (
-              <td key={cell.id} className={`${cell.column.columnDef.meta?.isDisplayColumn ? "w-6" : "w-1/4"}`}>
+              <td
+                key={cell.id}
+                className={`${cell.column.columnDef.meta?.isDisplayColumn ? "w-6" : "flex flex-1 empty:hidden sm:empty:block"} ${
+                  !cell.column.columnDef.meta?.showOnMobile && !cell.getIsGrouped() && "hidden sm:block"
+                }`}
+              >
                 {cell.getIsGrouped() ? (
                   // If it's a grouped cell, add an expander and row count
                   <>
@@ -243,7 +269,7 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
                         style: {
                           cursor: row.getCanExpand() ? "pointer" : "normal",
                         },
-                        className: "w-full flex gap-2",
+                        className: "w-full flex gap-2 items-center",
                       }}
                     >
                       {row.getIsExpanded() ? (
