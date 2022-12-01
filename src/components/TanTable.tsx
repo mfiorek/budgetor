@@ -3,6 +3,7 @@ import { type Category, type Transaction } from "@prisma/client";
 import { trpc } from "../utils/trpc";
 import { createColumnHelper, useReactTable, flexRender, getCoreRowModel, getSortedRowModel, getGroupedRowModel, getExpandedRowModel, type RowData } from "@tanstack/react-table";
 import { Menu } from "@headlessui/react";
+import { formatNumber } from "../utils/currencyFormat";
 import Link from "next/link";
 import { useAtom, useAtomValue } from "jotai";
 import { groupColumnsAtom, filterAtom, sortAtom } from "../state/atoms";
@@ -151,11 +152,11 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
       header: (props) => <span className={`${props.column.getIsGrouped() || "w-full text-right"}`}>Value</span>,
       cell: (info) => (
         <div className="w-full">
-          <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>
+          <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{formatNumber(info.getValue())} zł</span>
           {!info.cell.getIsGrouped() && <p className="text-right text-xs sm:hidden">{info.row.original.date.toLocaleDateString()}</p>}
         </div>
       ),
-      aggregatedCell: (info) => <span className={`block w-full text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{info.getValue().toFixed(2)} zł</span>,
+      aggregatedCell: (info) => <span className={`block w-full text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{formatNumber(info.getValue())} zł</span>,
       meta: { showOnMobile: true },
     }),
     columnHelper.accessor("date", {

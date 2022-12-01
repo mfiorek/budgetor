@@ -1,4 +1,5 @@
 import React from "react";
+import { formatNumber } from "../utils/currencyFormat";
 
 interface DoughnutProps {
   income: number;
@@ -24,11 +25,11 @@ const Doughnut: React.FC<DoughnutProps> = ({ income, expense }) => {
             ${total < 0 && "text-red-400"}
             ${total > 0 && "text-lime-500"}`}
         >
-          {total.toFixed(2)} zł
+          {formatNumber(total)} zł
         </h1>
         <div className="flex w-full justify-between gap-8">
-          <h3 className="text-lime-400">{income.toFixed(2)} zł</h3>
-          <h3 className="text-right text-red-400">-{expense.toFixed(2)} zł</h3>
+          <h3 className="text-lime-400">{formatNumber(income)} zł</h3>
+          <h3 className="text-right text-red-400">-{formatNumber(expense)} zł</h3>
         </div>
       </div>
       <svg className="-rotate-90" style={{ width: size, height: size }}>
