@@ -1,21 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { type Category, type Transaction } from "@prisma/client";
 import { trpc } from "../utils/trpc";
-import {
-  createColumnHelper,
-  useReactTable,
-  flexRender,
-  getCoreRowModel,
-  getSortedRowModel,
-  getGroupedRowModel,
-  getExpandedRowModel,
-  type RowData,
-  type SortingState,
-} from "@tanstack/react-table";
+import { createColumnHelper, useReactTable, flexRender, getCoreRowModel, getSortedRowModel, getGroupedRowModel, getExpandedRowModel, type RowData } from "@tanstack/react-table";
 import { Menu } from "@headlessui/react";
 import Link from "next/link";
-import { useAtomValue } from "jotai";
-import { groupColumnsAtom, filterAtom } from "../state/atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { groupColumnsAtom, filterAtom, sortAtom } from "../state/atoms";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -95,7 +85,7 @@ interface TanTableProps {
   data: (Transaction & { category: Category | null })[];
 }
 const TanTable: React.FC<TanTableProps> = ({ data }) => {
-  const [sorting, setSorting] = useState<SortingState>([{ id: "date", desc: true }]);
+  const [sortAtomValue, setSortAtomValue] = useAtom(sortAtom);
   const groupingAtom = useAtomValue(groupColumnsAtom);
 
   const filterWords = useAtomValue(filterAtom);
@@ -191,10 +181,10 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
     data: filteredData.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()),
     columns,
     state: {
-      sorting,
+      sorting: sortAtomValue,
       grouping: groupingAtom,
     },
-    onSortingChange: setSorting,
+    onSortingChange: setSortAtomValue,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getGroupedRowModel: getGroupedRowModel(),

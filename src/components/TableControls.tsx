@@ -2,22 +2,22 @@ import React, { useEffect } from "react";
 import { Disclosure, Listbox } from "@headlessui/react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useAtom, useSetAtom } from "jotai";
-import { groupColumnsAtom, filterAtom } from "../state/atoms";
+import { groupColumnsAtom, filterAtom, sortAtom } from "../state/atoms";
+
+// Hardcoded for now...
+interface PossibleValuesType {
+  columnId: string;
+  columnName: string;
+}
+const possibleValues: PossibleValuesType[] = [
+  { columnId: "name", columnName: "Name" },
+  { columnId: "category_name", columnName: "Category" },
+  { columnId: "value", columnName: "Value" },
+  { columnId: "date", columnName: "Date" },
+];
 
 const GroupForm = () => {
   const [groupColumnsAtomValue, setGroupColumnsAtomValue] = useAtom(groupColumnsAtom);
-
-  // Hardcoded for now...
-  interface PossibleValuesType {
-    columnId: string;
-    columnName: string;
-  }
-  const possibleValues: PossibleValuesType[] = [
-    { columnId: "name", columnName: "Name" },
-    { columnId: "category_name", columnName: "Category" },
-    { columnId: "value", columnName: "Value" },
-    { columnId: "date", columnName: "Date" },
-  ];
 
   type GroupFormInputs = {
     groupColumnIds: PossibleValuesType[];
@@ -34,7 +34,7 @@ const GroupForm = () => {
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <span className="text-lg font-bold">Group rows by:</span>
+      <span className="text-lg font-bold">Group by:</span>
       {!!fields.length && (
         <div className="flex w-full flex-col gap-1">
           {fields.map((columnIdField, index) => {
@@ -102,7 +102,7 @@ const FilterForm = () => {
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <span className="text-lg font-bold">Filter rows by:</span>
+      <span className="text-lg font-bold">Filter by:</span>
       <div className="relative">
         <input className="w-full p-2" value={filterAtomValue.join(" ")} onChange={(e) => setFilterAtomValue(e.target.value.split(" "))} placeholder="Type keywords..." />
         {!!filterAtomValue.length && (
@@ -116,6 +116,114 @@ const FilterForm = () => {
               </svg>
             </button>
           </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const SortForm = () => {
+  const [sortAtomValue, setSortAtomValue] = useAtom(sortAtom);
+
+  const handleChangeColumn = (value: PossibleValuesType | null) => {
+    if (!value) {
+      return setSortAtomValue([]);
+    }
+    if (!sortAtomValue[0]) {
+      return setSortAtomValue([{ id: value.columnId, desc: true }]);
+    }
+    return setSortAtomValue([{ id: value.columnId, desc: sortAtomValue[0].desc }]);
+  };
+  const handleChangeDesc = (value: boolean) => {
+    if (!sortAtomValue[0]) {
+      // This should never happen as we hide this dropdown in this case
+      return setSortAtomValue([{ id: "date", desc: value }]);
+    }
+    return setSortAtomValue([{ id: sortAtomValue[0].id, desc: value }]);
+  };
+
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <span className="text-lg font-bold">Sort by:</span>
+      <div className="flex gap-4">
+        <Listbox value={possibleValues.find((pv) => pv.columnId === sortAtomValue[0]?.id)} onChange={handleChangeColumn} as="div" className="relative flex-1">
+          {({ open }) => (
+            <>
+              <Listbox.Button className="flex w-full cursor-pointer items-center justify-between gap-2 rounded bg-sky-800 p-2 hover:bg-sky-700">
+                {!!possibleValues.find((pv) => pv.columnId === sortAtomValue[0]?.id)?.columnName ? (
+                  <p>{possibleValues.find((pv) => pv.columnId === sortAtomValue[0]?.id)?.columnName}</p>
+                ) : (
+                  <i>Column...</i>
+                )}
+                {open ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                  </svg>
+                )}
+              </Listbox.Button>
+              <Listbox.Options className="absolute z-10 mt-1 w-full rounded-md bg-slate-700 p-1 shadow-lg">
+                {possibleValues
+                  .filter((value) => sortAtomValue[0]?.id !== value.columnId)
+                  .map((value) => (
+                    <Listbox.Option
+                      key={value.columnId}
+                      value={value}
+                      className={({ active }) => `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-600"}`}
+                    >
+                      {value.columnName}
+                    </Listbox.Option>
+                  ))}
+                <Listbox.Option
+                  key="column-none"
+                  value={null}
+                  className={({ active }) => `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-600"}`}
+                >
+                  <i>None...</i>
+                </Listbox.Option>
+              </Listbox.Options>
+            </>
+          )}
+        </Listbox>
+
+        {!!sortAtomValue[0] && (
+          <Listbox value={sortAtomValue[0].desc} onChange={handleChangeDesc} as="div" className="relative flex-1">
+            {({ open }) => (
+              <>
+                <Listbox.Button className="flex w-full cursor-pointer items-center justify-between gap-2 rounded bg-sky-800 p-2 hover:bg-sky-700">
+                  <p>{sortAtomValue[0]?.desc ? "Descending" : "Ascending"}</p>
+                  {open ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                    </svg>
+                  )}
+                </Listbox.Button>
+                <Listbox.Options className="absolute z-10 mt-1 w-full rounded-md bg-slate-700 p-1 shadow-lg">
+                  <Listbox.Option
+                    key="true"
+                    value={true}
+                    className={({ active }) => `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-600"}`}
+                  >
+                    Descending
+                  </Listbox.Option>
+                  <Listbox.Option
+                    key="false"
+                    value={false}
+                    className={({ active }) => `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-600"}`}
+                  >
+                    Ascending
+                  </Listbox.Option>
+                </Listbox.Options>
+              </>
+            )}
+          </Listbox>
         )}
       </div>
     </div>
@@ -170,6 +278,9 @@ const TableControls = () => {
           <Disclosure.Panel className="flex flex-col gap-8 rounded-md rounded-t-none border border-sky-800 bg-slate-700 bg-opacity-20 p-2 sm:flex-row sm:rounded-tr">
             <GroupForm />
             <FilterForm />
+            <span className="sm:hidden">
+              <SortForm />
+            </span>
           </Disclosure.Panel>
         </>
       )}
