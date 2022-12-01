@@ -1,6 +1,7 @@
 import React, { useState, type Dispatch, type SetStateAction } from "react";
 import { type Transaction } from "@prisma/client";
 import { Listbox } from "@headlessui/react";
+import dateStringHelper from "../utils/dateStringsHelper";
 
 interface MonthSelectorProps {
   transactions: Transaction[];
@@ -9,8 +10,8 @@ interface MonthSelectorProps {
 }
 
 const MonthSelector: React.FC<MonthSelectorProps> = ({ transactions, setPeriodStart, setPeriodEnd }) => {
-  const [selectedMonth, setSelectedMonth] = useState<string>(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`);
-  const monthStrings = new Set<string>(transactions.map((transaction) => `${transaction.date.getFullYear()}-${transaction.date.getMonth() + 1}`));
+  const [selectedMonth, setSelectedMonth] = useState<string>(`${new Date().getFullYear()}-${dateStringHelper.getMonthString(new Date())}`);
+  const monthStrings = new Set<string>(transactions.map((transaction) => `${transaction.date.getFullYear()}-${dateStringHelper.getMonthString(transaction.date)}`));
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   const handleSelect = (month: string) => {
@@ -19,7 +20,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ transactions, setPeriodSt
     setPeriodStart(new Date(month));
     const monthLater = new Date(month);
     monthLater.setMonth(monthLater.getMonth() + 1);
-    const monthLaterString = `${monthLater.getFullYear()}-${monthLater.getMonth() + 1}`;
+    const monthLaterString = `${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`;
     setPeriodEnd(new Date(monthLaterString));
   };
 

@@ -9,10 +9,13 @@ import Doughnut from "../components/Doughnut";
 import Link from "next/link";
 import TanTable from "../components/TanTable";
 import TableControls from "../components/TableControls";
+import dateStringHelper from "../utils/dateStringsHelper";
 
 const Home: NextPage = () => {
-  const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 1}`));
-  const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${new Date().getFullYear()}-${new Date().getMonth() + 2}`));
+  const monthLater = new Date();
+  monthLater.setMonth(monthLater.getMonth() + 1);
+  const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${dateStringHelper.getMonthString(new Date())}`));
+  const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`));
 
   const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
   const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });

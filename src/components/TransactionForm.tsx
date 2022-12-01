@@ -4,6 +4,7 @@ import { type Category, type Transaction } from "@prisma/client";
 import { trpc } from "../utils/trpc";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import cuid from "cuid";
+import dateStringHelper from "../utils/dateStringsHelper";
 
 interface TransactionFormProps {
   editingTransaction?: Transaction;
@@ -85,12 +86,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
 
   const getDateStringForInput = () => {
     if (editingTransaction) {
-      const monthString = editingTransaction.date.getMonth() + 1 < 10 ? `0${editingTransaction.date.getMonth() + 1}` : `${editingTransaction.date.getMonth() + 1}`;
-      const dayString = editingTransaction.date.getDate() < 10 ? `0${editingTransaction.date.getDate()}` : `${editingTransaction.date.getDate()}`;
+      const monthString = dateStringHelper.getMonthString(editingTransaction.date);
+      const dayString = dateStringHelper.getDayString(editingTransaction.date);
       return `${editingTransaction.date.getFullYear()}-${monthString}-${dayString}`;
     }
-    const monthString = new Date().getMonth() + 1 < 10 ? `0${new Date().getMonth() + 1}` : `${new Date().getMonth() + 1}`;
-    const dayString = new Date().getDate() < 10 ? `0${new Date().getDate()}` : `${new Date().getDate()}`;
+    const monthString = dateStringHelper.getMonthString(new Date());
+    const dayString = dateStringHelper.getDayString(new Date());
     return `${new Date().getFullYear()}-${monthString}-${dayString}`;
   };
 
