@@ -74,9 +74,9 @@ const Navbar = () => {
                         <span>Year view</span>
                       </Link>
                       <Link
-                        href="/recurring"
+                        href="/recurrings"
                         className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
-                          router.pathname === "/recurring" && "bg-slate-700"
+                          router.pathname === "/recurrings" && "bg-slate-700"
                         }`}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
