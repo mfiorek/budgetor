@@ -2,12 +2,12 @@ import React from "react";
 import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
 import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
-import { formatNumber } from "../utils/currencyFormat";
 import Link from "next/link";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
+import RecurringListElement from "../components/RecurringListElement";
 
-const RecurringPage: NextPage = () => {
+const RecurringsPage: NextPage = () => {
   const { data: recurringsData, isLoading: isRecurringsLoading } = trpc.recurringTransaction.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
 
   if (isRecurringsLoading || !recurringsData) {
@@ -19,8 +19,8 @@ const RecurringPage: NextPage = () => {
   }
   return (
     <Layout>
-      <div className="flex w-full flex-col gap-4">
-        <Link href="/recurring" className="flex items-center justify-center gap-2 rounded bg-lime-800 p-2 hover:bg-lime-700 sm:min-w-[10rem]">
+      <div className="flex w-full flex-col gap-8">
+        <Link href="/recurring" className="mx-auto flex w-full justify-center gap-2 rounded bg-lime-800 px-3 py-2 font-semibold hover:bg-lime-700 sm:max-w-[10rem]">
           <span>Add new</span>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
             <path
@@ -34,8 +34,8 @@ const RecurringPage: NextPage = () => {
         {/* Recurring expenses */}
         <div className="flex w-full flex-col gap-4">
           <h3 className="text-2xl">Recurring expenses:</h3>
-          <ul className="flex w-full flex-col gap-2">
-            <li className="flex w-full rounded bg-slate-700 py-2 font-extrabold">
+          <ul className="flex w-full flex-col gap-2 rounded bg-red-600 bg-opacity-10 p-1">
+            <li className="flex w-full rounded bg-slate-700 py-2 pr-10 font-extrabold">
               <span className="w-1/4 px-2">Name</span>
               <span className="w-1/4 px-2">Category</span>
               <span className="w-1/4 px-2 text-right">Value</span>
@@ -44,24 +44,7 @@ const RecurringPage: NextPage = () => {
             {recurringsData
               .filter((recurring) => recurring.isExpense)
               .map((recurring) => (
-                <li key={recurring.id} className="flex w-full flex-col items-center rounded bg-slate-700 bg-opacity-50">
-                  <div className={`flex w-full py-2`}>
-                    <span className="w-1/4 px-2">{recurring.name}</span>
-                    <span className="w-1/4 px-2">
-                      {recurring.category ? (
-                        <>
-                          {recurring.category.icon} {recurring.category.name}
-                        </>
-                      ) : (
-                        <>-</>
-                      )}
-                    </span>
-                    <span className={`w-1/4 px-2 text-right ${recurring.isExpense ? "text-red-400" : "text-lime-500"}`}>
-                      {formatNumber((recurring.isExpense ? -1 : 1) * recurring.value)} zł
-                    </span>
-                    <span className="w-1/4 px-2 text-right">{recurring.dayOfMonth}</span>
-                  </div>
-                </li>
+                <RecurringListElement key={recurring.id} recurring={recurring} />
               ))}
           </ul>
         </div>
@@ -69,8 +52,8 @@ const RecurringPage: NextPage = () => {
         {/* Recurring incomes */}
         <div className="flex w-full flex-col gap-4">
           <h3 className="text-2xl">Recurring incomes:</h3>
-          <ul className="flex w-full flex-col gap-2">
-            <li className="flex w-full rounded bg-slate-700 py-2 font-extrabold">
+          <ul className="flex w-full flex-col gap-2 rounded bg-lime-600 bg-opacity-10 p-1">
+            <li className="flex w-full rounded bg-slate-700 py-2 pr-10 font-extrabold">
               <span className="w-1/4 px-2">Name</span>
               <span className="w-1/4 px-2">Category</span>
               <span className="w-1/4 px-2 text-right">Value</span>
@@ -79,24 +62,7 @@ const RecurringPage: NextPage = () => {
             {recurringsData
               .filter((recurring) => !recurring.isExpense)
               .map((recurring) => (
-                <li key={recurring.id} className="flex w-full flex-col items-center rounded bg-slate-700 bg-opacity-50">
-                  <div className={`flex w-full py-2`}>
-                    <span className="w-1/4 px-2">{recurring.name}</span>
-                    <span className="w-1/4 px-2">
-                      {recurring.category ? (
-                        <>
-                          {recurring.category.icon} {recurring.category.name}
-                        </>
-                      ) : (
-                        <>-</>
-                      )}
-                    </span>
-                    <span className={`w-1/4 px-2 text-right ${recurring.isExpense ? "text-red-400" : "text-lime-500"}`}>
-                      {formatNumber((recurring.isExpense ? -1 : 1) * recurring.value)} zł
-                    </span>
-                    <span className="w-1/4 px-2 text-right">{recurring.dayOfMonth}</span>
-                  </div>
-                </li>
+                <RecurringListElement key={recurring.id} recurring={recurring} />
               ))}
           </ul>
         </div>
@@ -105,7 +71,7 @@ const RecurringPage: NextPage = () => {
   );
 };
 
-export default RecurringPage;
+export default RecurringsPage;
 
 export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(context);
