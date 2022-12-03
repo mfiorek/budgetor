@@ -60,6 +60,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
             createdAt: editingTransaction?.createdAt || new Date(),
             updatedAt: new Date(),
             category: previousCategories.find((category) => category.id === categoryId) || null,
+            recurringTransactionId: null,
           },
         ]);
       }

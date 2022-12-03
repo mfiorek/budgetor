@@ -15,26 +15,42 @@ datasource db {
 }
 
 model Category {
-  id          String        @id @default(cuid())
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  name        String        @unique
-  transaction Transaction[]
-  icon        String
-  color       String
-  isExpense   Boolean
+  id                   String                 @id @default(cuid())
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  name                 String                 @unique
+  transaction          Transaction[]
+  recurringTransaction RecurringTransaction[]
+  icon                 String
+  color                String
+  isExpense            Boolean
 }
 
 model Transaction {
-  id         String    @id @default(cuid())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  isExpense  Boolean
-  value      Float
-  name       String
-  date       DateTime
-  category   Category? @relation(fields: [categoryId], references: [id])
-  categoryId String?
+  id                     String                @id @default(cuid())
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  isExpense              Boolean
+  value                  Float
+  name                   String
+  date                   DateTime
+  category               Category?             @relation(fields: [categoryId], references: [id])
+  categoryId             String?
+  recurringTransaction   RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id])
+  recurringTransactionId String?
+}
+
+model RecurringTransaction {
+  id          String        @id @default(cuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  isExpense   Boolean
+  value       Float
+  name        String
+  dayOfMonth  Int
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  transaction Transaction[]
 }
 
 model Credentials {
