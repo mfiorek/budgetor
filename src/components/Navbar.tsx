@@ -75,7 +75,7 @@ const Navbar = () => {
                       </Link>
                       <Link
                         href="/recurrings"
-                        className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
+                        className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
                           router.pathname === "/recurrings" && "bg-slate-700"
                         }`}
                       >
@@ -87,6 +87,22 @@ const Navbar = () => {
                           />
                         </svg>
                         <span>Recurring transactions</span>
+                      </Link>
+                      <Link
+                        href="/categories"
+                        className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
+                          router.pathname === "/categories" && "bg-slate-700"
+                        }`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                          />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
+                        </svg>
+                        <span>Categories</span>
                       </Link>
                     </section>
                     <section className="flex flex-col border-t border-slate-700 p-1">
