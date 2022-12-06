@@ -140,11 +140,7 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
     }),
     columnHelper.accessor("category.name", {
       header: () => <span>Category</span>,
-      cell: (info) => (
-        <span className="whitespace-nowrap">
-          {info.row.original.category?.icon} {info.getValue()}
-        </span>
-      ),
+      cell: (info) => <span className="whitespace-nowrap">{info.row.original.category ? `${info.row.original.category?.icon} ${info.row.original.category?.name}` : "-"}</span>,
       meta: { showOnMobile: false },
     }),
     columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value, {
