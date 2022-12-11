@@ -22,15 +22,15 @@ const GroupForm = () => {
   type GroupFormInputs = {
     groupColumnIds: PossibleValuesType[];
   };
-  const { control, register } = useForm<GroupFormInputs>({
+  const { control, register, watch } = useForm<GroupFormInputs>({
     defaultValues: { groupColumnIds: groupColumnsAtomValue.map((av) => possibleValues.find((pv) => pv.columnId === av)) },
   });
   const { fields, append, remove } = useFieldArray({ control, name: "groupColumnIds" });
-  const currentFormVales = useWatch({ control, name: "groupColumnIds" });
+  const currentFormValues = useWatch({ control, name: "groupColumnIds" });
 
   useEffect(() => {
-    setGroupColumnsAtomValue(currentFormVales.map((gcid) => gcid.columnId));
-  }, [currentFormVales, setGroupColumnsAtomValue]);
+    setGroupColumnsAtomValue(currentFormValues.map((gcid) => gcid.columnId));
+  }, [currentFormValues, setGroupColumnsAtomValue]);
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -62,37 +62,39 @@ const GroupForm = () => {
         </div>
       )}
 
-      <Listbox onChange={append} as="div" className="relative w-max">
-        {({ open }) => (
-          <>
-            <Listbox.Button className="flex cursor-pointer items-center justify-center gap-2 rounded bg-sky-800 p-2 hover:bg-sky-700">
-              <i className="pr-8">Add grouping by...</i>
-              {open ? (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                </svg>
-              )}
-            </Listbox.Button>
-            <Listbox.Options className="absolute z-10 mt-1 w-full rounded-md bg-slate-700 p-1 shadow-lg">
-              {possibleValues
-                .filter((value) => !currentFormVales.some((currentValue) => currentValue.columnId === value.columnId))
-                .map((value) => (
-                  <Listbox.Option
-                    key={value.columnId}
-                    value={value}
-                    className={({ active }) => `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-600"}`}
-                  >
-                    {value.columnName}
-                  </Listbox.Option>
-                ))}
-            </Listbox.Options>
-          </>
-        )}
-      </Listbox>
+      {watch("groupColumnIds").length < possibleValues.length - 1 && (
+        <Listbox onChange={append} as="div" className="relative w-max">
+          {({ open }) => (
+            <>
+              <Listbox.Button className="flex cursor-pointer items-center justify-center gap-2 rounded bg-sky-800 p-2 hover:bg-sky-700">
+                <i className="pr-8">Add grouping by...</i>
+                {open ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                  </svg>
+                )}
+              </Listbox.Button>
+              <Listbox.Options className="absolute z-10 mt-1 w-full rounded-md bg-slate-700 p-1 shadow-lg">
+                {possibleValues
+                  .filter((value) => !currentFormValues.some((currentValue) => currentValue.columnId === value.columnId))
+                  .map((value) => (
+                    <Listbox.Option
+                      key={value.columnId}
+                      value={value}
+                      className={({ active }) => `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-600"}`}
+                    >
+                      {value.columnName}
+                    </Listbox.Option>
+                  ))}
+              </Listbox.Options>
+            </>
+          )}
+        </Listbox>
+      )}
     </div>
   );
 };

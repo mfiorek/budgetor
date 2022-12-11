@@ -130,17 +130,16 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
         <div className="text-left">
           <p>{info.getValue()}</p>
           {!info.cell.getIsGrouped() && (
-            <p className="text-xs sm:hidden">
-              {info.row.original.category?.icon} {info.row.original.category?.name}
-            </p>
+            <p className="text-xs sm:hidden">{info.row.original.category ? `${info.row.original.category.icon} ${info.row.original.category.name}` : "-"}</p>
           )}
         </div>
       ),
       meta: { showOnMobile: true },
     }),
-    columnHelper.accessor("category.name", {
+    columnHelper.accessor((row) => (row.category ? `${row.category.icon} ${row.category.name}` : "-"), {
+      id: "category_name",
       header: () => <span>Category</span>,
-      cell: (info) => <span className="whitespace-nowrap">{info.row.original.category ? `${info.row.original.category?.icon} ${info.row.original.category?.name}` : "-"}</span>,
+      cell: (info) => <span className="whitespace-nowrap">{info.row.original.category ? `${info.row.original.category.icon} ${info.row.original.category.name}` : "-"}</span>,
       meta: { showOnMobile: false },
     }),
     columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value, {
