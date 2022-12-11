@@ -44,15 +44,15 @@ const Navbar = () => {
                 leaveFrom="opacity-100 translate-y-0"
                 leaveTo="opacity-0 translate-y-1"
               >
-                <Menu.Items className="absolute right-0 z-10 mt-1 min-w-max rounded-lg bg-slate-800 shadow-lg">
+                <Menu.Items className="arrowUp absolute right-0 z-10 mt-1 min-w-max rounded-lg border border-slate-600 bg-slate-800 shadow-lg before:right-[24px] after:right-[25px]">
                   <section className="flex flex-col items-start p-1">
                     <Menu.Item>
                       {({ active }) => (
                         <Link
                           href="/"
-                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
-                            router.pathname === "/" && "bg-slate-700"
-                          } ${active && "bg-slate-600 bg-opacity-25"}`}
+                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
+                            router.pathname === "/" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                          }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
@@ -66,9 +66,9 @@ const Navbar = () => {
                       {({ active }) => (
                         <Link
                           href="/year"
-                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
-                            router.pathname === "/year" && "bg-slate-700"
-                          } ${active && "bg-slate-600 bg-opacity-25"}`}
+                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
+                            router.pathname === "/year" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                          }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
                             <path
@@ -85,9 +85,9 @@ const Navbar = () => {
                       {({ active }) => (
                         <Link
                           href="/recurrings"
-                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
-                            router.pathname === "/recurrings" && "bg-slate-700"
-                          } ${active && "bg-slate-600 bg-opacity-25"}`}
+                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
+                            router.pathname === "/recurrings" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                          }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
                             <path
@@ -104,9 +104,9 @@ const Navbar = () => {
                       {({ active }) => (
                         <Link
                           href="/categories"
-                          className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
-                            router.pathname === "/categories" && "bg-slate-700"
-                          } ${active && "bg-slate-600 bg-opacity-25"}`}
+                          className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
+                            router.pathname === "/categories" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                          }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
                             <path
@@ -126,9 +126,9 @@ const Navbar = () => {
                       {({ active }) => (
                         <Link
                           href="/settings"
-                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
-                            router.pathname === "/settings" && "bg-slate-700"
-                          } ${active && "bg-slate-600 bg-opacity-25"}`}
+                          className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
+                            router.pathname === "/settings" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                          }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
                             <path
@@ -146,7 +146,6 @@ const Navbar = () => {
                       {({ active }) => (
                         <button
                           className={`group flex w-full items-center gap-2 rounded px-2 py-1.5
-                              hover:bg-red-500 hover:bg-opacity-50
                               disabled:cursor-not-allowed disabled:opacity-20 ${active && "bg-red-500 bg-opacity-50"}`}
                           disabled={isDisabled}
                           onClick={() => {
@@ -154,7 +153,13 @@ const Navbar = () => {
                             signOut();
                           }}
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} className="h-5 w-5 stroke-red-500 group-hover:stroke-slate-200">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            className={`h-5 w-5 stroke-red-500 ${active && "stroke-slate-200"}`}
+                          >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
                           </svg>
                           <span>Logout {session?.user?.name}</span>

@@ -35,7 +35,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ transactions, setPeriodSt
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
           </svg>
         </Listbox.Button>
-        <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-md bg-slate-800 p-1">
+        <Listbox.Options className="absolute z-10 mt-2 max-h-60 w-full overflow-auto rounded-md border border-slate-600 bg-slate-800 p-1 shadow-lg">
           {[...monthStrings]
             .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
             .map((month) => (
@@ -43,9 +43,9 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ transactions, setPeriodSt
                 key={month}
                 value={month}
                 className={({ active, selected }) =>
-                  `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-700"} ${
-                    selected && "cursor-default bg-slate-600 font-bold"
-                  }`
+                  `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 hover:bg-slate-600 hover:bg-opacity-25 ${
+                    active && "bg-slate-600 bg-opacity-25"
+                  } ${selected && "cursor-default bg-slate-700 bg-opacity-100 font-bold hover:bg-opacity-100"}`
                 }
               >
                 <span>
