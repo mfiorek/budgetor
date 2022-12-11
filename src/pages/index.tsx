@@ -2,14 +2,15 @@ import { useState } from "react";
 import { type NextPage } from "next";
 import { trpc } from "../utils/trpc";
 import { useTrpcSession } from "../hooks/useTrpcSession";
+import dateStringHelper from "../utils/dateStringsHelper";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import MonthSelector from "../components/MonthSelector";
+import TotalSummary from "../components/TotalSummary";
 import Doughnut from "../components/Doughnut";
 import Link from "next/link";
 import TransactionsTable from "../components/TransactionsTable";
 import TableControls from "../components/TableControls";
-import dateStringHelper from "../utils/dateStringsHelper";
 
 const Home: NextPage = () => {
   const monthLater = new Date();
@@ -29,22 +30,24 @@ const Home: NextPage = () => {
       </Layout>
     );
   }
+
+  const income = transactionsData
+    .filter((t) => !t.isExpense)
+    .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
+    .map((t) => t.value)
+    .reduce((partialSum, a) => partialSum + a, 0);
+  const expense = transactionsData
+    .filter((t) => t.isExpense)
+    .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
+    .map((t) => t.value)
+    .reduce((partialSum, a) => partialSum + a, 0);
+
   return (
     <Layout>
       <div className="flex flex-col gap-4">
         <MonthSelector transactions={transactionsData} setPeriodStart={setPeriodStart} setPeriodEnd={setPeriodEnd} />
-        <Doughnut
-          income={transactionsData
-            .filter((t) => !t.isExpense)
-            .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
-            .map((t) => t.value)
-            .reduce((partialSum, a) => partialSum + a, 0)}
-          expense={transactionsData
-            .filter((t) => t.isExpense)
-            .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
-            .map((t) => t.value)
-            .reduce((partialSum, a) => partialSum + a, 0)}
-        />
+        <TotalSummary income={income} expense={expense} />
+        <Doughnut income={income} expense={expense} />
       </div>
       <div className="flex w-full justify-center py-10">
         <Link href="/transaction" className="flex w-full justify-center gap-2 rounded bg-lime-800 px-3 py-2 font-semibold hover:bg-lime-700 sm:max-w-[10rem]">
