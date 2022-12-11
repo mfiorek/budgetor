@@ -43,9 +43,9 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ transactions, setPeriodSt
                 key={month}
                 value={month}
                 className={({ active, selected }) =>
-                  `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 hover:bg-slate-600 hover:bg-opacity-25 ${
-                    active && "bg-slate-600 bg-opacity-25"
-                  } ${selected && "cursor-default bg-slate-700 bg-opacity-100 font-bold hover:bg-opacity-100"}`
+                  `relative z-10 mb-1 cursor-pointer rounded px-2 py-1.5 text-slate-100 last:mb-0 bg-opacity-25 ${
+                    active && "bg-slate-600"
+                  } ${selected && "cursor-default bg-slate-600 bg-opacity-75 font-bold"}`
                 }
               >
                 <span>

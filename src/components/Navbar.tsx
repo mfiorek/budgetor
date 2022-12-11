@@ -51,7 +51,7 @@ const Navbar = () => {
                         <Link
                           href="/"
                           className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
-                            router.pathname === "/" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                            router.pathname === "/" && "bg-slate-600 bg-opacity-75"
                           }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
@@ -67,7 +67,7 @@ const Navbar = () => {
                         <Link
                           href="/year"
                           className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
-                            router.pathname === "/year" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                            router.pathname === "/year" && "bg-slate-600 bg-opacity-75"
                           }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
@@ -86,7 +86,7 @@ const Navbar = () => {
                         <Link
                           href="/recurrings"
                           className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
-                            router.pathname === "/recurrings" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                            router.pathname === "/recurrings" && "bg-slate-600 bg-opacity-75"
                           }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">
@@ -105,7 +105,7 @@ const Navbar = () => {
                         <Link
                           href="/categories"
                           className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
-                            router.pathname === "/categories" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                            router.pathname === "/categories" && "bg-slate-600 bg-opacity-75"
                           }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
@@ -127,7 +127,7 @@ const Navbar = () => {
                         <Link
                           href="/settings"
                           className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left ${active && "bg-slate-600 bg-opacity-25"} ${
-                            router.pathname === "/settings" && "bg-slate-700 bg-opacity-100 hover:bg-opacity-100"
+                            router.pathname === "/settings" && "bg-slate-600 bg-opacity-75"
                           }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
