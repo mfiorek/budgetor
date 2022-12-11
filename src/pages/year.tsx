@@ -6,7 +6,7 @@ import Link from "next/link";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import YearSelector from "../components/YearSelector";
-import TanTable from "../components/TanTable";
+import TransactionsTable from "../components/TransactionsTable";
 import TableControls from "../components/TableControls";
 
 const YearPage: NextPage = () => {
@@ -44,7 +44,7 @@ const YearPage: NextPage = () => {
       </div>
       <div className="flex w-full flex-col gap-4">
         <TableControls />
-        <TanTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
+        <TransactionsTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
       </div>
     </Layout>
   );

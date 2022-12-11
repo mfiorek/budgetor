@@ -7,7 +7,7 @@ import Loader from "../components/Loader";
 import MonthSelector from "../components/MonthSelector";
 import Doughnut from "../components/Doughnut";
 import Link from "next/link";
-import TanTable from "../components/TanTable";
+import TransactionsTable from "../components/TransactionsTable";
 import TableControls from "../components/TableControls";
 import dateStringHelper from "../utils/dateStringsHelper";
 
@@ -59,7 +59,7 @@ const Home: NextPage = () => {
       </div>
       <div className="flex w-full flex-col gap-4">
         <TableControls />
-        <TanTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
+        <TransactionsTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
       </div>
     </Layout>
   );

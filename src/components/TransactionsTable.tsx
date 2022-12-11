@@ -82,10 +82,10 @@ const RowMenu: React.FC<RowMenuProps> = ({ transaction }) => {
   );
 };
 
-interface TanTableProps {
+interface TransactionsTableProps {
   data: (Transaction & { category: Category | null })[];
 }
-const TanTable: React.FC<TanTableProps> = ({ data }) => {
+const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
   const [sortAtomValue, setSortAtomValue] = useAtom(sortAtom);
   const groupingAtom = useAtomValue(groupColumnsAtom);
 
@@ -287,4 +287,4 @@ const TanTable: React.FC<TanTableProps> = ({ data }) => {
   );
 };
 
-export default TanTable;
+export default TransactionsTable;
