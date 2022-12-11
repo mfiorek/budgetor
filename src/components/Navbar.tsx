@@ -127,7 +127,7 @@ const Navbar = () => {
                         <Link
                           href="/settings"
                           className={`mb-1 flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-slate-600 hover:bg-opacity-25 ${
-                            router.pathname === "/settings" && "bg-red-700"
+                            router.pathname === "/settings" && "bg-slate-700"
                           } ${active && "bg-slate-600 bg-opacity-25"}`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
