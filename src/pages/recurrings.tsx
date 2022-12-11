@@ -1,13 +1,14 @@
 import React from "react";
-import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { type NextPage } from "next";
 import { trpc } from "../utils/trpc";
+import { useTrpcSession } from "../hooks/useTrpcSession";
 import Link from "next/link";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import RecurringsTable from "../components/RecurringsTable";
 
 const RecurringsPage: NextPage = () => {
+  useTrpcSession({ authRequired: true });
   const { data: recurringsData, isLoading: isRecurringsLoading } = trpc.recurringTransaction.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
 
   if (isRecurringsLoading || !recurringsData) {
@@ -48,18 +49,3 @@ const RecurringsPage: NextPage = () => {
 };
 
 export default RecurringsPage;
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(context);
-  if (!session?.user) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-};

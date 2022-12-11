@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { type NextPage } from "next";
 import { trpc } from "../utils/trpc";
+import { useTrpcSession } from "../hooks/useTrpcSession";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import MonthSelector from "../components/MonthSelector";
@@ -17,6 +17,7 @@ const Home: NextPage = () => {
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}-${dateStringHelper.getMonthString(new Date())}`));
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`));
 
+  useTrpcSession({ authRequired: true });
   const { data: check } = trpc.recurringTransaction.check.useQuery(undefined, { staleTime: 1000 * 60 * 60 * 24 });
   const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getAll.useQuery(undefined, { enabled: check !== undefined, staleTime: 1000 * 60 * 5 });
   const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
@@ -59,25 +60,12 @@ const Home: NextPage = () => {
       </div>
       <div className="flex w-full flex-col gap-4">
         <TableControls />
-        <TransactionsTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
+        <TransactionsTable
+          data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())}
+        />
       </div>
     </Layout>
   );
 };
 
 export default Home;
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(context);
-  if (!session?.user) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-};

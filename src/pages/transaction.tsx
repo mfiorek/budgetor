@@ -1,7 +1,7 @@
 import React from "react";
-import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { type NextPage } from "next";
 import { trpc } from "../utils/trpc";
+import { useTrpcSession } from "../hooks/useTrpcSession";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import TransactionForm from "../components/TransactionForm";
@@ -54,6 +54,7 @@ const EditTransactionPage: React.FC<EditTransactionPageProps> = ({ transactionId
 };
 
 const TransactionPage: NextPage = () => {
+  useTrpcSession({ authRequired: true });
   const router = useRouter();
   const { id } = router.query;
 
@@ -68,18 +69,3 @@ const TransactionPage: NextPage = () => {
 };
 
 export default TransactionPage;
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(context);
-  if (!session?.user) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-};

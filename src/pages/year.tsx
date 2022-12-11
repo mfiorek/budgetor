@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
+import { type NextPage } from "next";
 import { trpc } from "../utils/trpc";
+import { useTrpcSession } from "../hooks/useTrpcSession";
 import Link from "next/link";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
@@ -13,6 +13,7 @@ const YearPage: NextPage = () => {
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}`));
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${new Date().getFullYear() + 1}`));
 
+  useTrpcSession({ authRequired: true });
   const { data: check } = trpc.recurringTransaction.check.useQuery(undefined, { staleTime: 1000 * 60 * 60 * 24 });
   const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getAll.useQuery(undefined, { enabled: check !== undefined, staleTime: 1000 * 60 * 5 });
   const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
@@ -51,18 +52,3 @@ const YearPage: NextPage = () => {
 };
 
 export default YearPage;
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(context);
-  if (!session?.user) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-};

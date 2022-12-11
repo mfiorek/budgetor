@@ -1,8 +1,8 @@
 import React from "react";
-import { type NextPage, type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { type NextPage } from "next";
 import { useRouter } from "next/router";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { trpc } from "../utils/trpc";
+import { useTrpcSession } from "../hooks/useTrpcSession";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import CategoryForm from "../components/CategoryForm";
@@ -43,12 +43,21 @@ const EditCategoryPage: React.FC<EditCategoryPageProps> = ({ categoryId }) => {
 };
 
 const CategoryPage: NextPage = () => {
+  const { data, isLoading } = useTrpcSession({ authRequired: true });
   const router = useRouter();
   const { id } = router.query;
 
   if (typeof id === "object") {
     router.push("/404");
     return null;
+  }
+
+  if (!data || isLoading) {
+    return (
+      <Layout>
+        <Loader text="Loading..." />
+      </Layout>
+    );
   }
   if (!id) {
     return <AddCategoryPage />;
@@ -57,18 +66,3 @@ const CategoryPage: NextPage = () => {
 };
 
 export default CategoryPage;
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(context);
-  if (!session?.user) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-};

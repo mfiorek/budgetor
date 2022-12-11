@@ -1,13 +1,14 @@
 import React, { Fragment, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useTrpcSession } from "../hooks/useTrpcSession";
 import { Menu, Transition } from "@headlessui/react";
 import Link from "next/link";
 import Image from "next/image";
 
 const Navbar = () => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session } = useTrpcSession({});
   const [isDisabled, setIsDisabled] = useState(false);
 
   return (

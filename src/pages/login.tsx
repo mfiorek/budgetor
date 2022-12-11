@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
-import { getServerAuthSession } from "../server/common/get-server-auth-session";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
+import { useTrpcSession } from "../hooks/useTrpcSession";
 import Image from "next/image";
 import Layout from "../components/Layout";
+import Loader from "../components/Loader";
 
 const LoginPage = () => {
+  const { data, isLoading } = useTrpcSession({ notAuthRequired: true, redirectTo: "/" });
   const [isDisabled, setIsDisabled] = useState(false);
 
   interface CredentialsInputs {
@@ -24,6 +25,13 @@ const LoginPage = () => {
     signIn("credentials", { username: data.username, password: data.password, callbackUrl: "/" });
   };
 
+  if (data || isLoading) {
+    return (
+      <Layout>
+        <Loader text="Loading..." />
+      </Layout>
+    );
+  }
   return (
     <Layout>
       <div className="flex w-full grow flex-col items-center justify-center gap-8 lg:flex-row lg:gap-16">
@@ -75,18 +83,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-  const session = await getServerAuthSession(context);
-  if (session?.user) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: {},
-  };
-};
