@@ -5,7 +5,7 @@ import { trpc } from "../utils/trpc";
 import Link from "next/link";
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
-import RecurringListElement from "../components/RecurringListElement";
+import RecurringsTable from "../components/RecurringsTable";
 
 const RecurringsPage: NextPage = () => {
   const { data: recurringsData, isLoading: isRecurringsLoading } = trpc.recurringTransaction.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
@@ -34,37 +34,13 @@ const RecurringsPage: NextPage = () => {
         {/* Recurring expenses */}
         <div className="flex w-full flex-col gap-4">
           <h3 className="text-2xl">Recurring expenses:</h3>
-          <ul className="flex w-full flex-col gap-2 rounded bg-red-600 bg-opacity-10 p-1">
-            <li className="flex w-full rounded bg-slate-700 py-2 pr-10 font-extrabold">
-              <span className="w-1/4 px-2">Name</span>
-              <span className="w-1/4 px-2">Category</span>
-              <span className="w-1/4 px-2 text-right">Value</span>
-              <span className="w-1/4 px-2 text-right">Day of month</span>
-            </li>
-            {recurringsData
-              .filter((recurring) => recurring.isExpense)
-              .map((recurring) => (
-                <RecurringListElement key={recurring.id} recurring={recurring} />
-              ))}
-          </ul>
+          <RecurringsTable data={recurringsData.filter((recurring) => recurring.isExpense)} />
         </div>
 
         {/* Recurring incomes */}
         <div className="flex w-full flex-col gap-4">
           <h3 className="text-2xl">Recurring incomes:</h3>
-          <ul className="flex w-full flex-col gap-2 rounded bg-lime-600 bg-opacity-10 p-1">
-            <li className="flex w-full rounded bg-slate-700 py-2 pr-10 font-extrabold">
-              <span className="w-1/4 px-2">Name</span>
-              <span className="w-1/4 px-2">Category</span>
-              <span className="w-1/4 px-2 text-right">Value</span>
-              <span className="w-1/4 px-2 text-right">Day of month</span>
-            </li>
-            {recurringsData
-              .filter((recurring) => !recurring.isExpense)
-              .map((recurring) => (
-                <RecurringListElement key={recurring.id} recurring={recurring} />
-              ))}
-          </ul>
+          <RecurringsTable data={recurringsData.filter((recurring) => !recurring.isExpense)} />
         </div>
       </div>
     </Layout>
