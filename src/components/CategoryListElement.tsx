@@ -26,7 +26,11 @@ const CategoryListElement: React.FC<CategoryListElementProps> = ({ category }) =
   });
 
   return (
-    <div key={category.id} className={`flex min-h-[3rem] select-none items-center justify-between rounded p-2`} style={{ backgroundColor: `${category.color}` }}>
+    <div
+      key={category.id}
+      className={`flex min-h-[3rem] select-none items-center justify-between rounded border p-2`}
+      style={{ backgroundColor: `${category.color}88`, borderColor: `${category.color}` }}
+    >
       <div className="flex items-center gap-2">
         {category.icon && <span className="text-2xl">{category.icon}</span>}
         <span className="text-center" style={{ textShadow: "0px 0px 2px black" }}>
