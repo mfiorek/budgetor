@@ -66,7 +66,7 @@ const RowMenu: React.FC<RowMenuProps> = ({ recurring }) => {
         <Menu.Item>
           {({ active }) => (
             <div
-              className={`hover:bg-opacity-50" group flex w-full min-w-[7rem] items-center gap-2 rounded px-2 py-1.5 ${active && "bg-red-500 bg-opacity-50"}`}
+              className={`hover:bg-opacity-50" group flex w-full min-w-[7rem] cursor-pointer items-center gap-2 rounded px-2 py-1.5 ${active && "bg-red-500 bg-opacity-50"}`}
               onClick={() => mutate({ id: recurring.id })}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} className={`h-6 w-6 stroke-red-500 ${active && "stroke-slate-200"}`}>
