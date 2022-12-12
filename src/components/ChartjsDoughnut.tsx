@@ -23,7 +23,7 @@ const ChartjsDoughnut: React.FC<ChartjsDoughnutProps> = ({ transactionsData, per
       .reduce((grouped, t) => {
         const found = grouped.find((matching) => (t.category ? matching.category?.id === t.categoryId : matching.category?.id === ""));
         if (!found) {
-          grouped.push({ category: t.category || ({ id: "", name: "-", color: "#666" } as Category), isExpense: t.isExpense, value: t.isExpense ? -t.value : t.value });
+          grouped.push({ category: t.category || ({ id: "", name: "-", color: "#666666" } as Category), isExpense: t.isExpense, value: t.isExpense ? -t.value : t.value });
         } else {
           found.value += t.isExpense ? -t.value : t.value;
         }
@@ -46,11 +46,10 @@ const ChartjsDoughnut: React.FC<ChartjsDoughnutProps> = ({ transactionsData, per
           datasets: [
             {
               data: groupedTransactionsData,
-              backgroundColor: groupedTransactionsData.map((c) => c.category?.color),
-              borderColor: "#1e293b",
-              hoverBorderColor: "#1e293b",
+              backgroundColor: groupedTransactionsData.map((c) => `${c.category?.color}99`),
+              borderColor: groupedTransactionsData.map((c) => c.category?.color),
+              hoverBackgroundColor: groupedTransactionsData.map((c) => c.category?.color),
               borderWidth: 2,
-              borderRadius: 7,
               hoverOffset: 50,
             },
           ],
