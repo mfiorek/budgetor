@@ -7,7 +7,7 @@ import Layout from "../components/Layout";
 import Loader from "../components/Loader";
 import MonthSelector from "../components/MonthSelector";
 import TotalSummary from "../components/TotalSummary";
-import Doughnut from "../components/Doughnut";
+import ChartjsDoughnut from "../components/ChartjsDoughnut";
 import Link from "next/link";
 import TransactionsTable from "../components/TransactionsTable";
 import TableControls from "../components/TableControls";
@@ -32,22 +32,22 @@ const Home: NextPage = () => {
   }
 
   const income = transactionsData
-    .filter((t) => !t.isExpense)
     .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
+    .filter((t) => !t.isExpense)
     .map((t) => t.value)
     .reduce((partialSum, a) => partialSum + a, 0);
   const expense = transactionsData
-    .filter((t) => t.isExpense)
     .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
+    .filter((t) => t.isExpense)
     .map((t) => t.value)
     .reduce((partialSum, a) => partialSum + a, 0);
 
   return (
     <Layout>
-      <div className="flex flex-col gap-4">
+      <div className="flex w-full flex-col gap-4">
         <MonthSelector transactions={transactionsData} setPeriodStart={setPeriodStart} setPeriodEnd={setPeriodEnd} />
         <TotalSummary income={income} expense={expense} />
-        <Doughnut income={income} expense={expense} />
+        <ChartjsDoughnut transactionsData={transactionsData} periodStart={periodStart} periodEnd={periodEnd} income={income} expense={expense} />
       </div>
       <div className="flex w-full justify-center py-10">
         <Link href="/transaction" className="flex w-full justify-center gap-2 rounded bg-lime-800 px-3 py-2 font-semibold hover:bg-lime-700 sm:max-w-[10rem]">

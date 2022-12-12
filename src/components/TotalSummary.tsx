@@ -10,7 +10,7 @@ const TotalSummary: React.FC<TotalSummaryProps> = ({ income, expense }) => {
   const total = income - expense;
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="mx-auto flex w-max flex-col items-center gap-2">
       <h1
         className={`text-5xl font-extrabold
           ${total === 0 && "text-slate-400"}
