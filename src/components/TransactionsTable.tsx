@@ -6,7 +6,7 @@ import { Menu } from "@headlessui/react";
 import { formatNumber } from "../utils/currencyFormat";
 import Link from "next/link";
 import { useAtom, useAtomValue } from "jotai";
-import { groupColumnsAtom, filterAtom, sortAtom } from "../state/atoms";
+import { groupColumnsAtom, filterAtom, filterByAtom, sortAtom } from "../state/atoms";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -95,27 +95,28 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
   const groupingAtom = useAtomValue(groupColumnsAtom);
 
   const filterWords = useAtomValue(filterAtom);
+  const filterBy = useAtomValue(filterByAtom);
   const [filteredData, setFilteredData] = useState<(Transaction & { category: Category | null })[]>([]);
 
   useEffect(() => {
     let dataToSearchIn = data;
     filterWords.forEach((filterWord) => {
       dataToSearchIn = dataToSearchIn.filter((transaction) => {
-        const nameMatch =
+        const nameMatch = filterBy.includes('Name') &&
           transaction.name
             .toLowerCase()
             .split(" ")
             .findIndex((nameWord) => nameWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const categoryMatch =
+        const categoryMatch = filterBy.includes('Category') &&
           transaction.category?.name
             .toLowerCase()
             .split(" ")
             .findIndex((categoryWord) => categoryWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const valueMatch =
+        const valueMatch = filterBy.includes('Value') &&
           (transaction.isExpense ? formatNumber(-transaction.value * transaction.fxRate) : formatNumber(transaction.value * transaction.fxRate))
             .split(" ")
             .findIndex((valueString) => valueString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const dateMatch =
+        const dateMatch = filterBy.includes('Date') &&
           transaction.date
             .toLocaleDateString()
             .split(" ")
@@ -125,7 +126,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
       });
     });
     setFilteredData(dataToSearchIn || []);
-  }, [data, filterWords]);
+  }, [data, filterBy, filterWords]);
 
   const columnHelper = createColumnHelper<Transaction & { category: Category | null }>();
   const columns = [

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Disclosure, Listbox } from "@headlessui/react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useAtom, useSetAtom } from "jotai";
-import { groupColumnsAtom, filterAtom, sortAtom } from "../state/atoms";
+import { groupColumnsAtom, filterAtom, filterByAtom, sortAtom } from "../state/atoms";
 
 // Hardcoded for now...
 interface PossibleValuesType {
@@ -101,6 +101,9 @@ const GroupForm = () => {
 
 const FilterForm = () => {
   const [filterAtomValue, setFilterAtomValue] = useAtom(filterAtom);
+  const [filterByAtomValue, setFilterByAtomValue] = useAtom(filterByAtom);
+
+  const filterByOptions = ["Name", "Category", "Value", "Date"];
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -120,6 +123,51 @@ const FilterForm = () => {
           </div>
         )}
       </div>
+      <Listbox as="div" value={filterByAtomValue} onChange={setFilterByAtomValue} multiple className="relative">
+        {({ open }) => (
+          <>
+            <Listbox.Button className="flex w-full cursor-pointer items-center justify-between gap-2 rounded bg-sky-800 p-2 hover:bg-sky-700">
+              <span className="text-left">
+                Fields to filter by: <i className="pr-8">{filterByAtomValue.length ? filterByAtomValue.join(", ") : "none"}</i>
+              </span>
+              {open ? (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                </svg>
+              )}
+            </Listbox.Button>
+            <Listbox.Options className="absolute z-10 mt-1 w-full rounded-md bg-slate-700 p-1 shadow-lg">
+              {filterByOptions.map((filterByOption) => (
+                <Listbox.Option
+                  key={filterByOption}
+                  value={filterByOption}
+                  className={({ active }) => `relative z-10 mb-1 flex cursor-pointer gap-2 rounded px-2 py-1.5 text-slate-100 last:mb-0 ${active && "bg-slate-600"}`}
+                >
+                  {({ selected }) => (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className={`h-6 w-6 ${!selected && "invisible"}`}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                      {filterByOption}
+                    </>
+                  )}
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </>
+        )}
+      </Listbox>
     </div>
   );
 };
