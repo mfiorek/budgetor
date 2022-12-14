@@ -76,16 +76,18 @@ const ChartjsBar: React.FC<ChartjsBarProps> = ({ transactionsData, periodStart, 
       <Bar
         data={{
           labels: monthNames,
-          datasets: groupedTransactionsData.map((t) => ({
-            label: t.category.name,
-            data: t.data.map((d) => (t.category.id !== "savings" ? d.calculatedValue : d.calculatedValue > 0 ? d.calculatedValue : 0)),
-            backgroundColor: `${t.category?.color}99`,
-            hoverBackgroundColor: t.category?.color,
-            borderColor: t.category?.color,
-            hoverBorderColor: t.category?.color,
-            borderWidth: 2,
-            stack: t.category.id === "savings" ? "savings" : t.category.isExpense ? "expenses" : "incomes",
-          })),
+          datasets: groupedTransactionsData
+            .sort((a, b) => Number(a.category.id === "savings") - Number(b.category.id === "savings") || Number(a.category.isExpense) - Number(b.category.isExpense))
+            .map((t) => ({
+              label: t.category.name,
+              data: t.data.map((d) => (t.category.id !== "savings" ? d.calculatedValue : d.calculatedValue > 0 ? d.calculatedValue : 0)),
+              backgroundColor: `${t.category?.color}99`,
+              hoverBackgroundColor: t.category?.color,
+              borderColor: t.category?.color,
+              hoverBorderColor: t.category?.color,
+              borderWidth: 2,
+              stack: t.category.id === "savings" ? "savings" : t.category.isExpense ? "expenses" : "incomes",
+            })),
         }}
         options={{
           responsive: true,
