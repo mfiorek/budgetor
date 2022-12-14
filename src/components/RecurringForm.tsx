@@ -226,7 +226,7 @@ const RecurringForm: React.FC<RecurringFormProps> = ({ editingRecurring, categor
                   before:grid before:h-5 before:w-5 before:rounded-full before:bg-slate-400 before:transition-all before:duration-200
                   checked:bg-lime-800 checked:before:translate-x-6 checked:before:bg-lime-500"
             />
-            <span>Is in foreign currency?</span>
+            <span>Foreign currency?</span>
           </label>
 
           {watch("isFX") && (
