@@ -32,36 +32,36 @@ const ChartjsBar: React.FC<ChartjsBarProps> = ({ transactionsData, periodStart, 
           const noCategoryCategoryToPush = t.isExpense ? { id: "none_expense", ...noCategoryCategory } : { id: "none_income", ...noCategoryCategory };
           grouped.push({
             category: t.category || noCategoryCategoryToPush,
-            data: [{ monthIndex: t.date.getMonth(), value: t.value }],
+            data: [{ monthIndex: t.date.getMonth(), calculatedValue: t.value * t.fxRate }],
           });
         } else {
           const foundMonthInCategory = foundCategory.data.find((matching) => matching.monthIndex === t.date.getMonth());
 
           if (!foundMonthInCategory) {
-            foundCategory.data.push({ monthIndex: t.date.getMonth(), value: t.value });
+            foundCategory.data.push({ monthIndex: t.date.getMonth(), calculatedValue: t.value * t.fxRate });
           } else {
-            foundMonthInCategory.value += t.value;
+            foundMonthInCategory.calculatedValue += t.value * t.fxRate;
           }
         }
         return grouped;
-      }, [] as { category: Category; data: { monthIndex: number; value: number }[] }[]);
+      }, [] as { category: Category; data: { monthIndex: number; calculatedValue: number }[] }[]);
 
     const savingsCategory = { id: "savings", name: "Savings", color: "#84cc16", isExpense: false, createdAt: new Date(), updatedAt: new Date(), icon: "" };
     const savings = result.reduce((grouped, category) => {
       category.data.forEach((d) => {
         const found = grouped.find((monthData) => monthData.monthIndex === d.monthIndex);
         if (!found) {
-          grouped.push({ monthIndex: d.monthIndex, value: category.category.isExpense ? -d.value : d.value });
+          grouped.push({ monthIndex: d.monthIndex, calculatedValue: category.category.isExpense ? -d.calculatedValue : d.calculatedValue });
         } else {
-          found.value += category.category.isExpense ? -d.value : d.value;
+          found.calculatedValue += category.category.isExpense ? -d.calculatedValue : d.calculatedValue;
         }
       });
       return grouped;
-    }, [] as { monthIndex: number; value: number }[]);
+    }, [] as { monthIndex: number; calculatedValue: number }[]);
     result.push({ category: savingsCategory, data: savings });
 
     result.forEach((c) => {
-      const copy: { monthIndex: number; value: number }[] = [];
+      const copy: { monthIndex: number; calculatedValue: number }[] = [];
       c.data.forEach((cc) => (copy[cc.monthIndex] = cc));
       c.data = copy;
     });
@@ -78,7 +78,7 @@ const ChartjsBar: React.FC<ChartjsBarProps> = ({ transactionsData, periodStart, 
           labels: monthNames,
           datasets: groupedTransactionsData.map((t) => ({
             label: t.category.name,
-            data: t.data.map((d) => (t.category.id !== "savings" ? d.value : d.value > 0 ? d.value : 0)),
+            data: t.data.map((d) => (t.category.id !== "savings" ? d.calculatedValue : d.calculatedValue > 0 ? d.calculatedValue : 0)),
             backgroundColor: `${t.category?.color}99`,
             hoverBackgroundColor: t.category?.color,
             borderColor: t.category?.color,

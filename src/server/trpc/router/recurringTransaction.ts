@@ -64,7 +64,7 @@ export const recurringTransactionRouter = router({
       }
       numberOfAddedTransactions += datesToAddNew.length;
 
-      const { id, isExpense, name, categoryId, value } = recurring;
+      const { id, isExpense, name, categoryId, value, isFX, fxRate, fxSymbol } = recurring;
       await ctx.prisma.transaction.createMany({
         data: datesToAddNew.map((date) => ({
           isExpense,
@@ -72,6 +72,9 @@ export const recurringTransactionRouter = router({
           categoryId,
           date,
           value,
+          isFX,
+          fxRate,
+          fxSymbol,
           recurringTransactionId: id,
         })),
       });
@@ -95,10 +98,13 @@ export const recurringTransactionRouter = router({
         dayOfMonth: z.number(),
         categoryId: z.string().nullable(),
         value: z.number(),
+        isFX: z.boolean(),
+        fxRate: z.number(),
+        fxSymbol: z.string().nullable(),
       })
     )
     .mutation(({ ctx, input }) => {
-      const { id, isExpense, name, categoryId, dayOfMonth, value } = input;
+      const { id, isExpense, name, categoryId, dayOfMonth, value, isFX, fxRate, fxSymbol } = input;
       return ctx.prisma.recurringTransaction.upsert({
         where: {
           id,
@@ -109,6 +115,9 @@ export const recurringTransactionRouter = router({
           categoryId,
           dayOfMonth,
           value,
+          isFX,
+          fxRate,
+          fxSymbol,
         },
         create: {
           id,
@@ -117,6 +126,9 @@ export const recurringTransactionRouter = router({
           categoryId,
           dayOfMonth,
           value,
+          isFX,
+          fxRate,
+          fxSymbol,
         },
       });
     }),

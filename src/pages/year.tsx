@@ -31,12 +31,12 @@ const YearPage: NextPage = () => {
   const income = transactionsData
     .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
     .filter((t) => !t.isExpense)
-    .map((t) => t.value)
+    .map((t) => t.value * t.fxRate)
     .reduce((partialSum, a) => partialSum + a, 0);
   const expense = transactionsData
     .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
     .filter((t) => t.isExpense)
-    .map((t) => t.value)
+    .map((t) => t.value * t.fxRate)
     .reduce((partialSum, a) => partialSum + a, 0);
 
   return (

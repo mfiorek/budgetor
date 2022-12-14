@@ -34,6 +34,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
           name: "",
           date: undefined,
           value: undefined,
+          isFX: false,
+          fxRate: undefined,
+          fxSymbol: undefined,
         },
   });
 
@@ -43,7 +46,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
 
   const utils = trpc.useContext();
   const { mutate: mutateUpsertTransacion } = trpc.transaction.upsert.useMutation({
-    onMutate: async ({ id, isExpense, name, categoryId, date, value }) => {
+    onMutate: async ({ id, isExpense, name, categoryId, date, value, isFX, fxRate, fxSymbol }) => {
       await utils.transaction.getAll.cancel();
       const previousTransacions = utils.transaction.getAll.getData();
       const previousCategories = utils.category.getAll.getData();
@@ -57,6 +60,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
             categoryId,
             date,
             value,
+            isFX,
+            fxRate,
+            fxSymbol,
             createdAt: editingTransaction?.createdAt || new Date(),
             updatedAt: new Date(),
             category: previousCategories.find((category) => category.id === categoryId) || null,
@@ -74,7 +80,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
 
   const handleAdd: SubmitHandler<Transaction> = (data) => {
     router.back();
-    const { id, isExpense, name, categoryId, date, value } = data;
+    const { id, isExpense, name, categoryId, date, value, isFX, fxRate, fxSymbol } = data;
     mutateUpsertTransacion({
       id,
       isExpense,
@@ -82,6 +88,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
       categoryId,
       date,
       value,
+      isFX,
+      fxRate: isFX ? fxRate : 1,
+      fxSymbol: isFX ? fxSymbol : null,
     });
   };
 
@@ -117,7 +126,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
             id="isExpense"
             type="checkbox"
             {...register("isExpense")}
-            className="flex w-14 h-8 cursor-pointer appearance-none rounded-full bg-lime-300 bg-opacity-20 p-1 transition duration-200
+            className="flex h-8 w-14 cursor-pointer appearance-none rounded-full bg-lime-300 bg-opacity-20 p-1 transition duration-200
           before:grid before:h-6 before:w-6 before:rounded-full before:bg-lime-500 before:transition-all before:duration-200
           checked:bg-red-300 checked:bg-opacity-20
           checked:before:translate-x-6 checked:before:bg-red-500"
@@ -217,11 +226,59 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
           {errors.date && <span className="text-red-500">{errors.date.message}</span>}
         </label>
 
+        {/* FX: */}
+        <div className="mt-6 flex flex-col gap-2 overflow-hidden rounded border border-sky-500">
+          {/* isFX: */}
+          <label className="flex items-center gap-2 bg-sky-800 p-2">
+            <input
+              id="isFX"
+              type="checkbox"
+              {...register("isFX")}
+              className="flex h-6 w-12 cursor-pointer appearance-none rounded-full bg-slate-700 p-0.5 transition duration-200
+                  before:grid before:h-5 before:w-5 before:rounded-full before:bg-slate-400 before:transition-all before:duration-200
+                  checked:bg-lime-800 checked:before:translate-x-6 checked:before:bg-lime-500"
+            />
+            <span>Is in foreign currency?</span>
+          </label>
+
+          {watch("isFX") && (
+            <div className="flex gap-2 p-2">
+              {/* fxSymbol: */}
+              <label className="flex flex-1 flex-col">
+                <span>Currency symbol:</span>
+                <input type="text" {...register("fxSymbol")} />
+              </label>
+
+              {/* fxRate: */}
+              <label className="flex flex-1 flex-col">
+                <span>Exchange rate:</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  {...register("fxRate", {
+                    required: {
+                      value: watch("isFX"),
+                      message: "Exchange rate can't be empty...",
+                    },
+                    valueAsNumber: true,
+                    min: {
+                      value: 0,
+                      message: "Please provide positive value",
+                    },
+                  })}
+                  className={`${errors.fxRate && "border border-red-500"}`}
+                />
+                {errors.fxRate && <span className="text-red-500">{errors.fxRate.message}</span>}
+              </label>
+            </div>
+          )}
+        </div>
+
         <div className="mt-8 flex w-full gap-2">
-          <button type="button" onClick={router.back} className="text-ared-700 grow rounded border border-red-700 px-3 py-2 font-semibold hover:bg-red-600">
+          <button type="button" onClick={router.back} className="text-ared-700 flex-1 rounded border border-red-700 px-3 py-2 font-semibold hover:bg-red-600">
             Cancel
           </button>
-          <button type="submit" className="grow rounded bg-lime-700 px-3 py-2 font-semibold hover:bg-lime-600">
+          <button type="submit" className="flex-1 rounded bg-lime-700 px-3 py-2 font-semibold hover:bg-lime-600">
             {editingTransaction ? "Save" : "Add"}
           </button>
         </div>

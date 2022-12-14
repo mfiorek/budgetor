@@ -112,7 +112,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
             .split(" ")
             .findIndex((categoryWord) => categoryWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
         const valueMatch =
-          (transaction.isExpense ? (-transaction.value).toFixed(2) : transaction.value.toFixed(2))
+          (transaction.isExpense ? formatNumber(-transaction.value * transaction.fxRate) : formatNumber(transaction.value * transaction.fxRate))
             .split(" ")
             .findIndex((valueString) => valueString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
         const dateMatch =
@@ -147,12 +147,17 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
       cell: (info) => <span className="whitespace-nowrap">{info.row.original.category ? `${info.row.original.category.icon} ${info.row.original.category.name}` : "-"}</span>,
       meta: { showOnMobile: false },
     }),
-    columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value, {
+    columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value * row.fxRate, {
       id: "value",
       header: (props) => <span className={`${props.column.getIsGrouped() || "w-full text-right"}`}>Value</span>,
       cell: (info) => (
         <div className="w-full">
           <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{formatNumber(info.getValue())} zł</span>
+          {info.row.original.isFX && (
+            <span className={`block text-right text-sm italic ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>
+              {formatNumber((info.row.original.isExpense ? -1 : 1) * info.row.original.value)} {info.row.original.fxSymbol}
+            </span>
+          )}
           {!info.cell.getIsGrouped() && <p className="text-right text-xs sm:hidden">{info.row.original.date.toLocaleDateString()}</p>}
         </div>
       ),

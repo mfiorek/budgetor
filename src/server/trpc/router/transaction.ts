@@ -18,10 +18,13 @@ export const transactionRouter = router({
         date: z.date(),
         categoryId: z.string().nullable(),
         value: z.number(),
+        isFX: z.boolean(),
+        fxRate: z.number(),
+        fxSymbol: z.string().nullable(),
       })
     )
     .mutation(({ ctx, input }) => {
-      const { id, isExpense, name, categoryId, date, value } = input;
+      const { id, isExpense, name, categoryId, date, value, isFX, fxRate, fxSymbol } = input;
       return ctx.prisma.transaction.upsert({
         where: {
           id,
@@ -32,6 +35,9 @@ export const transactionRouter = router({
           categoryId,
           date,
           value,
+          isFX,
+          fxRate,
+          fxSymbol,
         },
         create: {
           id,
@@ -40,6 +46,9 @@ export const transactionRouter = router({
           categoryId,
           date,
           value,
+          isFX,
+          fxRate,
+          fxSymbol,
         },
       });
     }),

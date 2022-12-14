@@ -121,12 +121,17 @@ const RecurringsTable: React.FC<RecurringsTableProps> = ({ data }) => {
       cell: (info) => <span className="whitespace-nowrap">{info.row.original.category ? `${info.row.original.category.icon} ${info.row.original.category.name}` : "-"}</span>,
       meta: { showOnMobile: false },
     }),
-    columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value, {
+    columnHelper.accessor((row) => (row.isExpense ? -1 : 1) * row.value * row.fxRate, {
       id: "value",
       header: () => <span className="w-full text-right">Value</span>,
       cell: (info) => (
         <div className="w-full">
           <span className={`block text-right ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>{formatNumber(info.getValue())} zł</span>
+          {info.row.original.isFX && (
+            <span className={`block text-right text-sm italic ${info.getValue() < 0 ? "text-red-400" : "text-lime-500"}`}>
+              {formatNumber((info.row.original.isExpense ? -1 : 1) * info.row.original.value)} {info.row.original.fxSymbol}
+            </span>
+          )}
           <p className="text-right text-xs sm:hidden">
             <span>Every {info.row.original.dayOfMonth}</span>
             <sup>{getOrdinalSuffix(info.row.original.dayOfMonth)}</sup>

@@ -23,17 +23,21 @@ const ChartjsDoughnut: React.FC<ChartjsDoughnutProps> = ({ transactionsData, per
       .reduce((grouped, t) => {
         const found = grouped.find((matching) => (t.category ? matching.category?.id === t.categoryId : matching.category?.id === ""));
         if (!found) {
-          grouped.push({ category: t.category || ({ id: "", name: "-", color: "#666666" } as Category), isExpense: t.isExpense, value: t.isExpense ? -t.value : t.value });
+          grouped.push({
+            category: t.category || ({ id: "", name: "-", color: "#666666" } as Category),
+            isExpense: t.isExpense,
+            calculatedValue: t.isExpense ? -t.value * t.fxRate : t.value * t.fxRate,
+          });
         } else {
-          found.value += t.isExpense ? -t.value : t.value;
+          found.calculatedValue += t.isExpense ? -t.value * t.fxRate : t.value * t.fxRate;
         }
         return grouped;
-      }, [] as { category: Category | null; isExpense: boolean; value: number }[]);
+      }, [] as { category: Category | null; isExpense: boolean; calculatedValue: number }[]);
 
     if (income - expense > 0) {
-      result.push({ category: { name: "Savings", color: "#3f6212" } as Category, isExpense: false, value: income - expense });
+      result.push({ category: { name: "Savings", color: "#3f6212" } as Category, isExpense: false, calculatedValue: income - expense });
     }
-    return result.sort((a, b) => a.value - b.value);
+    return result.sort((a, b) => a.calculatedValue - b.calculatedValue);
   };
 
   const groupedTransactionsData = groupByCategory(transactionsData);
@@ -45,7 +49,7 @@ const ChartjsDoughnut: React.FC<ChartjsDoughnutProps> = ({ transactionsData, per
           labels: groupedTransactionsData.map((cat) => cat.category?.name || "-"),
           datasets: [
             {
-              data: groupedTransactionsData,
+              data: groupedTransactionsData.map((gta) => gta.calculatedValue),
               backgroundColor: groupedTransactionsData.map((c) => `${c.category?.color}99`),
               borderColor: groupedTransactionsData.map((c) => c.category?.color),
               hoverBackgroundColor: groupedTransactionsData.map((c) => c.category?.color),

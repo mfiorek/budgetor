@@ -34,6 +34,9 @@ model Transaction {
   value                  Float
   name                   String
   date                   DateTime
+  isFX                   Boolean               @default(false)
+  fxRate                 Float                 @default(1)
+  fxSymbol               String?
   category               Category?             @relation(fields: [categoryId], references: [id])
   categoryId             String?
   recurringTransaction   RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id])
@@ -48,6 +51,9 @@ model RecurringTransaction {
   value       Float
   name        String
   dayOfMonth  Int
+  isFX        Boolean       @default(false)
+  fxRate      Float         @default(1)
+  fxSymbol    String?
   category    Category?     @relation(fields: [categoryId], references: [id])
   categoryId  String?
   transaction Transaction[]
