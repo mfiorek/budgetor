@@ -7,6 +7,7 @@ import { formatNumber } from "../utils/currencyFormat";
 import Link from "next/link";
 import { useAtom, useAtomValue } from "jotai";
 import { groupColumnsAtom, filterAtom, filterByAtom, sortAtom } from "../state/atoms";
+import useDebounce from "../hooks/useDebounce";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -98,12 +99,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
   const groupingAtom = useAtomValue(groupColumnsAtom);
 
   const filterWords = useAtomValue(filterAtom);
+  const debouncedFilterWords = useDebounce(filterWords, 1000);
   const filterBy = useAtomValue(filterByAtom);
   const [filteredData, setFilteredData] = useState<(Transaction & { category: Category | null })[]>([]);
 
   useEffect(() => {
     let dataToSearchIn = data;
-    filterWords.forEach((filterWord) => {
+    debouncedFilterWords.forEach((filterWord) => {
       dataToSearchIn = dataToSearchIn.filter((transaction) => {
         const nameMatch =
           filterBy.includes("Name") &&
@@ -133,7 +135,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
       });
     });
     setFilteredData(dataToSearchIn || []);
-  }, [data, filterBy, filterWords]);
+  }, [data, filterBy, debouncedFilterWords]);
 
   const columnHelper = createColumnHelper<Transaction & { category: Category | null }>();
   const columns = [
