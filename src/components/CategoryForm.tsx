@@ -35,7 +35,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ editingCategory }) => {
       await utils.category.getAll.cancel();
       const previousCategories = utils.category.getAll.getData();
       if (previousCategories) {
-        utils.category.getAll.setData([
+        utils.category.getAll.setData(undefined, [
           ...(editingCategory ? previousCategories.filter((t) => t.id !== id) : previousCategories),
           {
             id,
@@ -51,7 +51,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ editingCategory }) => {
       return previousCategories;
     },
     onError: (error, variables, context) => {
-      utils.category.getAll.setData(context);
+      utils.category.getAll.setData(undefined, context);
     },
     onSuccess: () => {
       utils.category.getAll.invalidate();
@@ -90,7 +90,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ editingCategory }) => {
             id="isExpense"
             type="checkbox"
             {...register("isExpense")}
-            className="flex w-14 h-8 cursor-pointer appearance-none rounded-full bg-lime-300 bg-opacity-20 p-1 transition duration-200
+            className="flex h-8 w-14 cursor-pointer appearance-none rounded-full bg-lime-300 bg-opacity-20 p-1 transition duration-200
           before:grid before:h-6 before:w-6 before:rounded-full before:bg-lime-500 before:transition-all before:duration-200
           checked:bg-red-300 checked:bg-opacity-20
           checked:before:translate-x-6 checked:before:bg-red-500"

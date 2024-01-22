@@ -15,12 +15,15 @@ const CategoryListElement: React.FC<CategoryListElementProps> = ({ category }) =
       await utils.category.getAll.cancel();
       const previousCategories = utils.category.getAll.getData();
       if (previousCategories) {
-        utils.category.getAll.setData(previousCategories.filter((t) => t.id !== id));
+        utils.category.getAll.setData(
+          undefined,
+          previousCategories.filter((t) => t.id !== id)
+        );
       }
       return previousCategories;
     },
     onError: (error, variables, context) => {
-      utils.category.getAll.setData(context);
+      utils.category.getAll.setData(undefined, context);
     },
     onSuccess: () => utils.category.getAll.invalidate(),
   });
