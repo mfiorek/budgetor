@@ -5,16 +5,21 @@ import { type AppRouter } from "../server/trpc/router/_app";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
 import { Bar } from "react-chartjs-2";
 import { formatNumber } from "../utils/currencyFormat";
+import { trpc } from "../utils/trpc";
+import Loader from "./Loader";
 
 interface ChartjsBarProps {
-  transactionsData: inferRouterOutputs<AppRouter>["transaction"]["getAll"];
   periodStart: Date;
   periodEnd: Date;
 }
-const ChartjsBar: React.FC<ChartjsBarProps> = ({ transactionsData, periodStart, periodEnd }) => {
+const ChartjsBar: React.FC<ChartjsBarProps> = ({ periodStart, periodEnd }) => {
   ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const { data: groupedTransactionsData, isLoading } = trpc.transaction.getSumsGroupedByCategories.useQuery({ periodStart, periodEnd });
+  if (isLoading || !groupedTransactionsData) {
+    return <Loader text="Loading transactions..." />;
+  }
 
   const groupByCategory = (data: inferRouterOutputs<AppRouter>["transaction"]["getAll"]) => {
     const result = data
@@ -69,7 +74,7 @@ const ChartjsBar: React.FC<ChartjsBarProps> = ({ transactionsData, periodStart, 
     return result;
   };
 
-  const groupedTransactionsData = groupByCategory(transactionsData);
+  // const groupedTransactionsData = groupByCategory(transactionsData);
 
   return (
     <div className="relative mx-auto h-[512px] w-full">

@@ -1,50 +1,52 @@
 import { useState } from "react";
 import { type NextPage } from "next";
-import { trpc } from "../utils/trpc";
 import { useTrpcSession } from "../hooks/useTrpcSession";
 import Link from "next/link";
 import Layout from "../components/Layout";
-import Loader from "../components/Loader";
 import YearSelector from "../components/YearSelector";
 import TotalSummary from "../components/TotalSummary";
 import ChartjsBar from "../components/ChartjsBar";
 import TransactionsTable from "../components/TransactionsTable";
 import TableControls from "../components/TableControls";
+import { trpc } from "../utils/trpc";
+import Loader from "../components/Loader";
 
 const YearPage: NextPage = () => {
   const [periodStart, setPeriodStart] = useState<Date>(new Date(`${new Date().getFullYear()}`));
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${new Date().getFullYear() + 1}`));
 
   useTrpcSession({ authRequired: true });
-  const { data: check } = trpc.recurringTransaction.check.useQuery(undefined, { staleTime: 1000 * 60 * 60 * 24 });
-  const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getAll.useQuery(undefined, { enabled: check !== undefined, staleTime: 1000 * 60 * 5 });
-  const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
+  const { data, isLoading } = trpc.transaction.getSums.useQuery({ periodStart, periodEnd });
 
-  if (isTransactionsLoading || isCategoriesLoading || !transactionsData || !categoriesData) {
-    return (
-      <Layout>
-        <Loader text="Loading transactions..." />
-      </Layout>
-    );
+  if (isLoading || !data) {
+    return <Loader text="Loading transactions..." />;
   }
+  const {
+    income: {
+      _sum: { value: incomeSum },
+    },
+    expense: {
+      _sum: { value: expenseSum },
+    },
+  } = data;
 
-  const income = transactionsData
-    .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
-    .filter((t) => !t.isExpense)
-    .map((t) => t.value * t.fxRate)
-    .reduce((partialSum, a) => partialSum + a, 0);
-  const expense = transactionsData
-    .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
-    .filter((t) => t.isExpense)
-    .map((t) => t.value * t.fxRate)
-    .reduce((partialSum, a) => partialSum + a, 0);
+  // const income = transactionsData
+  //   .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
+  //   .filter((t) => !t.isExpense)
+  //   .map((t) => t.value * t.fxRate)
+  //   .reduce((partialSum, a) => partialSum + a, 0);
+  // const expense = transactionsData
+  //   .filter((t) => t.date.getTime() >= periodStart.getTime() && t.date.getTime() < periodEnd.getTime())
+  //   .filter((t) => t.isExpense)
+  //   .map((t) => t.value * t.fxRate)
+  //   .reduce((partialSum, a) => partialSum + a, 0);
 
   return (
     <Layout>
       <div className="flex w-full flex-col gap-4">
-        <YearSelector transactions={transactionsData} setPeriodStart={setPeriodStart} setPeriodEnd={setPeriodEnd} />
-        <TotalSummary income={income} expense={expense} />
-        <ChartjsBar transactionsData={transactionsData} periodStart={periodStart} periodEnd={periodEnd} />
+        <YearSelector setPeriodStart={setPeriodStart} setPeriodEnd={setPeriodEnd} />
+        <TotalSummary income={incomeSum || 0} expense={expenseSum || 0} />
+        <ChartjsBar periodStart={periodStart} periodEnd={periodEnd} />
       </div>
       <div className="flex w-full justify-center py-10">
         <Link href="/transaction" className="flex w-full justify-center gap-2 rounded bg-lime-800 px-3 py-2 font-semibold hover:bg-lime-700 sm:max-w-[10rem]">
@@ -60,7 +62,7 @@ const YearPage: NextPage = () => {
       </div>
       <div className="flex w-full flex-col gap-4">
         <TableControls />
-        <TransactionsTable data={transactionsData.filter((transaction) => transaction.date.getTime() >= periodStart.getTime() && transaction.date.getTime() < periodEnd.getTime())} />
+        <TransactionsTable periodStart={periodStart} periodEnd={periodEnd} />
       </div>
     </Layout>
   );

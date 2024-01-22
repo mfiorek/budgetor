@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { type Category, type Transaction } from "@prisma/client";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "../server/trpc/router/_app";
 import { trpc } from "../utils/trpc";
 import { createColumnHelper, useReactTable, flexRender, getCoreRowModel, getSortedRowModel, getGroupedRowModel, getExpandedRowModel, type RowData } from "@tanstack/react-table";
 import { Menu } from "@headlessui/react";
 import { formatNumber } from "../utils/currencyFormat";
 import Link from "next/link";
 import { useAtom, useAtomValue } from "jotai";
-import { groupColumnsAtom, filterAtom, filterByAtom, sortAtom } from "../state/atoms";
+import { groupColumnsAtom, filterAtom, sortAtom } from "../state/atoms";
+import useDebounce from "../hooks/useDebounce";
+import Loader from "./Loader";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -20,18 +24,23 @@ interface RowMenuProps {
   transaction: Transaction & { category: Category | null };
 }
 const RowMenu: React.FC<RowMenuProps> = ({ transaction }) => {
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
   const { mutate } = trpc.transaction.delete.useMutation({
     onMutate: async ({ id }) => {
       await utils.transaction.getAll.cancel();
       const previousTransacions = utils.transaction.getAll.getData();
       if (previousTransacions) {
-        utils.transaction.getAll.setData(previousTransacions.filter((t) => t.id !== id));
+        // TODO undefined as mutationKey?
+        utils.transaction.getAll.setData(
+          undefined,
+          previousTransacions.filter((t) => t.id !== id)
+        );
       }
       return previousTransacions;
     },
     onError: (error, variables, context) => {
-      utils.transaction.getAll.setData(context);
+      // TODO undefined as mutationKey?
+      utils.transaction.getAll.setData(undefined, context);
     },
     onSuccess: () => utils.transaction.getAll.invalidate(),
   });
@@ -87,46 +96,33 @@ const RowMenu: React.FC<RowMenuProps> = ({ transaction }) => {
   );
 };
 
-interface TransactionsTableProps {
-  data: (Transaction & { category: Category | null })[];
-}
-const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
+type TransactionsTableProps = {
+  periodStart: Date;
+  periodEnd: Date;
+};
+const TransactionsTable: React.FC<TransactionsTableProps> = ({ periodStart, periodEnd }) => {
   const [sortAtomValue, setSortAtomValue] = useAtom(sortAtom);
   const groupingAtom = useAtomValue(groupColumnsAtom);
+  const filterWord = useAtomValue(filterAtom);
+  const debouncedFilterWord = useDebounce(filterWord, 1000);
+  const containerRef = useRef(null);
 
-  const filterWords = useAtomValue(filterAtom);
-  const filterBy = useAtomValue(filterByAtom);
-  const [filteredData, setFilteredData] = useState<(Transaction & { category: Category | null })[]>([]);
-
-  useEffect(() => {
-    let dataToSearchIn = data;
-    filterWords.forEach((filterWord) => {
-      dataToSearchIn = dataToSearchIn.filter((transaction) => {
-        const nameMatch = filterBy.includes('Name') &&
-          transaction.name
-            .toLowerCase()
-            .split(" ")
-            .findIndex((nameWord) => nameWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const categoryMatch = filterBy.includes('Category') &&
-          transaction.category?.name
-            .toLowerCase()
-            .split(" ")
-            .findIndex((categoryWord) => categoryWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const valueMatch = filterBy.includes('Value') &&
-          (transaction.isExpense ? formatNumber(-transaction.value * transaction.fxRate) : formatNumber(transaction.value * transaction.fxRate))
-            .split(" ")
-            .findIndex((valueString) => valueString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const dateMatch = filterBy.includes('Date') &&
-          transaction.date
-            .toLocaleDateString()
-            .split(" ")
-            .findIndex((dateString) => dateString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
-
-        return nameMatch || categoryMatch || valueMatch || dateMatch;
-      });
-    });
-    setFilteredData(dataToSearchIn || []);
-  }, [data, filterBy, filterWords]);
+  const { data: check } = trpc.recurringTransaction.check.useQuery(undefined, { staleTime: 1000 * 60 * 60 * 24 });
+  const {
+    data: infiniteFilteredData,
+    isLoading: infiniteFilteredLoading,
+    hasNextPage,
+    fetchNextPage,
+  } = trpc.transaction.getInfiniteFiltered.useInfiniteQuery(
+    { limit: 50, search: debouncedFilterWord, periodStart, periodEnd },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      staleTime: 1000 * 60 * 5,
+      enabled: check !== undefined,
+    }
+  );
+  type transactionsDataType = inferRouterOutputs<AppRouter>["transaction"]["getAll"];
+  const filteredData = infiniteFilteredData?.pages.reduce((partialSum, page) => [...partialSum, ...page.items], [] as transactionsDataType) || [];
 
   const columnHelper = createColumnHelper<Transaction & { category: Category | null }>();
   const columns = [
@@ -198,6 +194,30 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
     getExpandedRowModel: getExpandedRowModel(),
   });
 
+  useEffect(() => {
+    const currentContainerRef = containerRef.current;
+    const callbackFunction: IntersectionObserverCallback = (entries) => {
+      const [entry] = entries;
+      if (entry?.isIntersecting) {
+        fetchNextPage();
+      }
+    };
+    const options = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 1.0,
+    };
+    const observer = new IntersectionObserver(callbackFunction, options);
+    if (currentContainerRef) observer.observe(currentContainerRef);
+
+    return () => {
+      if (currentContainerRef) observer.unobserve(currentContainerRef);
+    };
+  }, [containerRef, fetchNextPage]);
+
+  if (infiniteFilteredLoading || !infiniteFilteredData) {
+    return <Loader text="Loading transactions..." />;
+  }
   return (
     <table className="flex w-full flex-col gap-2 rounded-md bg-slate-700 bg-opacity-20 p-1">
       <thead className="flex w-full rounded bg-slate-700">
@@ -292,6 +312,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
             ))}
           </tr>
         ))}
+        {hasNextPage && (
+          <tr ref={containerRef} className="flex w-full animate-[pulse_1s_linear_infinite] items-center gap-2 rounded bg-slate-700/50 py-3 px-4">
+            Loading more data...
+          </tr>
+        )}
       </tbody>
     </table>
   );

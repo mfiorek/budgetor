@@ -1,16 +1,20 @@
 import React, { useState, type Dispatch, type SetStateAction } from "react";
-import { type Transaction } from "@prisma/client";
 import { Listbox } from "@headlessui/react";
+import { trpc } from "../utils/trpc";
+import Loader from "./Loader";
 
 interface YearSelectorProps {
-  transactions: Transaction[];
   setPeriodStart: Dispatch<SetStateAction<Date>>;
   setPeriodEnd: Dispatch<SetStateAction<Date>>;
 }
 
-const YearSelector: React.FC<YearSelectorProps> = ({ transactions, setPeriodStart, setPeriodEnd }) => {
+const YearSelector: React.FC<YearSelectorProps> = ({ setPeriodStart, setPeriodEnd }) => {
   const [selectedYear, setSelectedYear] = useState<string>(`${new Date().getFullYear()}`);
-  const yearStrings = new Set<string>(transactions.map((transaction) => `${transaction.date.getFullYear()}`));
+  const { data, isLoading } = trpc.transaction.getDistinctDates.useQuery();
+  if (isLoading || !data) {
+    return <Loader text="Loading transactions..." />;
+  }
+  const yearStrings = new Set<string>(data.map((transaction) => `${transaction.date.getFullYear()}`));
 
   const handleSelect = (year: string) => {
     setSelectedYear(year);

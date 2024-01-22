@@ -109,11 +109,11 @@ const FilterForm = () => {
     <div className="flex w-full flex-col gap-2">
       <span className="text-lg font-bold">Filter by:</span>
       <div className="relative">
-        <input className="w-full p-2" value={filterAtomValue.join(" ")} onChange={(e) => setFilterAtomValue(e.target.value.split(" "))} placeholder="Type keywords..." />
+        <input className="w-full p-2" value={filterAtomValue} onChange={(e) => setFilterAtomValue(e.target.value)} placeholder="Type keywords..." />
         {!!filterAtomValue.length && (
           <div className="absolute right-0 top-0 flex h-full justify-end p-1">
             <button
-              onClick={() => setFilterAtomValue([])}
+              onClick={() => setFilterAtomValue("")}
               className="flex h-8 w-8 items-center justify-center rounded bg-red-500 bg-opacity-50 p-2 hover:bg-red-400 hover:bg-opacity-50"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
@@ -317,7 +317,7 @@ const TableControls = () => {
                   className="flex h-8 items-center justify-center rounded  bg-sky-800 p-2 hover:bg-sky-700"
                   onClick={() => {
                     setGroupColumnsAtomValue([]);
-                    setFilterAtomValue([]);
+                    setFilterAtomValue("");
                   }}
                 >
                   Clear all
