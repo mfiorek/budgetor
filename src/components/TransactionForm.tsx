@@ -51,7 +51,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
       const previousTransacions = utils.transaction.getAll.getData();
       const previousCategories = utils.category.getAll.getData();
       if (previousTransacions && previousCategories) {
-        utils.transaction.getAll.setData(undefined, [
+        utils.transaction.getAll.setData([
           ...(editingTransaction ? previousTransacions.filter((t) => t.id !== id) : previousTransacions),
           {
             id,
@@ -73,7 +73,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
       return previousTransacions;
     },
     onError: (error, variables, context) => {
-      utils.transaction.getAll.setData(undefined, context);
+      utils.transaction.getAll.setData(context);
     },
     onSuccess: () => utils.transaction.getAll.invalidate(),
   });

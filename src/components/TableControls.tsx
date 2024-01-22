@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Disclosure, Listbox } from "@headlessui/react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useAtom, useSetAtom } from "jotai";
 import { groupColumnsAtom, filterAtom, filterByAtom, sortAtom } from "../state/atoms";
+import useDebounce from "../hooks/useDebounce";
 
 // Hardcoded for now...
 interface PossibleValuesType {
@@ -102,6 +103,17 @@ const GroupForm = () => {
 const FilterForm = () => {
   const [filterAtomValue, setFilterAtomValue] = useAtom(filterAtom);
   const [filterByAtomValue, setFilterByAtomValue] = useAtom(filterByAtom);
+  const [tempFilterWords, setTempFilterWords] = useState<string[]>([]);
+  const debouncedFilterWords = useDebounce(tempFilterWords, 1000);
+
+  useEffect(() => {
+    setFilterAtomValue(debouncedFilterWords);
+  }, [setFilterAtomValue, debouncedFilterWords]);
+
+  const handleClear = () => {
+    setFilterAtomValue([]);
+    setTempFilterWords([]);
+  };
 
   const filterByOptions = ["Name", "Category", "Value", "Date"];
 
@@ -109,13 +121,10 @@ const FilterForm = () => {
     <div className="flex w-full flex-col gap-2">
       <span className="text-lg font-bold">Filter by:</span>
       <div className="relative">
-        <input className="w-full p-2" value={filterAtomValue.join(" ")} onChange={(e) => setFilterAtomValue(e.target.value.split(" "))} placeholder="Type keywords..." />
+        <input className="w-full p-2" value={tempFilterWords.join(" ")} onChange={(e) => setTempFilterWords(e.target.value.split(" "))} placeholder="Type keywords..." />
         {!!filterAtomValue.length && (
           <div className="absolute right-0 top-0 flex h-full justify-end p-1">
-            <button
-              onClick={() => setFilterAtomValue([])}
-              className="flex h-8 w-8 items-center justify-center rounded bg-red-500 bg-opacity-50 p-2 hover:bg-red-400 hover:bg-opacity-50"
-            >
+            <button onClick={handleClear} className="flex h-8 w-8 items-center justify-center rounded bg-red-500 bg-opacity-50 p-2 hover:bg-red-400 hover:bg-opacity-50">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>

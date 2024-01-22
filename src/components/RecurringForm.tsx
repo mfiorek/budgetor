@@ -45,7 +45,7 @@ const RecurringForm: React.FC<RecurringFormProps> = ({ editingRecurring, categor
       const previousRecurrings = utils.recurringTransaction.getAll.getData();
       const previousCategories = utils.category.getAll.getData();
       if (previousRecurrings && previousCategories) {
-        utils.recurringTransaction.getAll.setData(undefined, [
+        utils.recurringTransaction.getAll.setData([
           ...(editingRecurring ? previousRecurrings.filter((t) => t.id !== id) : previousRecurrings),
           {
             id,
@@ -66,7 +66,7 @@ const RecurringForm: React.FC<RecurringFormProps> = ({ editingRecurring, categor
       return previousRecurrings;
     },
     onError: (error, variables, context) => {
-      utils.recurringTransaction.getAll.setData(undefined, context);
+      utils.recurringTransaction.getAll.setData(context);
     },
     onSuccess: () => utils.recurringTransaction.getAll.invalidate(),
   });

@@ -24,15 +24,12 @@ const RowMenu: React.FC<RowMenuProps> = ({ recurring }) => {
       await utils.recurringTransaction.getAll.cancel();
       const previousRecurrings = utils.recurringTransaction.getAll.getData();
       if (previousRecurrings) {
-        utils.recurringTransaction.getAll.setData(
-          undefined,
-          previousRecurrings.filter((t) => t.id !== id)
-        );
+        utils.recurringTransaction.getAll.setData(previousRecurrings.filter((t) => t.id !== id));
       }
       return previousRecurrings;
     },
     onError: (error, variables, context) => {
-      utils.recurringTransaction.getAll.setData(undefined, context);
+      utils.recurringTransaction.getAll.setData(context);
     },
     onSuccess: () => utils.recurringTransaction.getAll.invalidate(),
   });

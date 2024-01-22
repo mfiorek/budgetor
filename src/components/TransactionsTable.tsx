@@ -7,7 +7,6 @@ import { formatNumber } from "../utils/currencyFormat";
 import Link from "next/link";
 import { useAtom, useAtomValue } from "jotai";
 import { groupColumnsAtom, filterAtom, filterByAtom, sortAtom } from "../state/atoms";
-import useDebounce from "../hooks/useDebounce";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -21,21 +20,18 @@ interface RowMenuProps {
   transaction: Transaction & { category: Category | null };
 }
 const RowMenu: React.FC<RowMenuProps> = ({ transaction }) => {
-  const utils = trpc.useUtils();
+  const utils = trpc.useContext();
   const { mutate } = trpc.transaction.delete.useMutation({
     onMutate: async ({ id }) => {
       await utils.transaction.getAll.cancel();
       const previousTransacions = utils.transaction.getAll.getData();
       if (previousTransacions) {
-        utils.transaction.getAll.setData(
-          undefined,
-          previousTransacions.filter((t) => t.id !== id)
-        );
+        utils.transaction.getAll.setData(previousTransacions.filter((t) => t.id !== id));
       }
       return previousTransacions;
     },
     onError: (error, variables, context) => {
-      utils.transaction.getAll.setData(undefined, context);
+      utils.transaction.getAll.setData(context);
     },
     onSuccess: () => utils.transaction.getAll.invalidate(),
   });
@@ -99,33 +95,28 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
   const groupingAtom = useAtomValue(groupColumnsAtom);
 
   const filterWords = useAtomValue(filterAtom);
-  const debouncedFilterWords = useDebounce(filterWords, 1000);
   const filterBy = useAtomValue(filterByAtom);
   const [filteredData, setFilteredData] = useState<(Transaction & { category: Category | null })[]>([]);
 
   useEffect(() => {
     let dataToSearchIn = data;
-    debouncedFilterWords.forEach((filterWord) => {
+    filterWords.forEach((filterWord) => {
       dataToSearchIn = dataToSearchIn.filter((transaction) => {
-        const nameMatch =
-          filterBy.includes("Name") &&
+        const nameMatch = filterBy.includes('Name') &&
           transaction.name
             .toLowerCase()
             .split(" ")
             .findIndex((nameWord) => nameWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const categoryMatch =
-          filterBy.includes("Category") &&
+        const categoryMatch = filterBy.includes('Category') &&
           transaction.category?.name
             .toLowerCase()
             .split(" ")
             .findIndex((categoryWord) => categoryWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const valueMatch =
-          filterBy.includes("Value") &&
+        const valueMatch = filterBy.includes('Value') &&
           (transaction.isExpense ? formatNumber(-transaction.value * transaction.fxRate) : formatNumber(transaction.value * transaction.fxRate))
             .split(" ")
             .findIndex((valueString) => valueString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const dateMatch =
-          filterBy.includes("Date") &&
+        const dateMatch = filterBy.includes('Date') &&
           transaction.date
             .toLocaleDateString()
             .split(" ")
@@ -135,7 +126,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
       });
     });
     setFilteredData(dataToSearchIn || []);
-  }, [data, filterBy, debouncedFilterWords]);
+  }, [data, filterBy, filterWords]);
 
   const columnHelper = createColumnHelper<Transaction & { category: Category | null }>();
   const columns = [
