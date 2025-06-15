@@ -7,6 +7,7 @@ import { formatNumber } from "../utils/currencyFormat";
 import Link from "next/link";
 import { useAtom, useAtomValue } from "jotai";
 import { groupColumnsAtom, filterAtom, filterByAtom, sortAtom } from "../state/atoms";
+import dateStringHelper from "../utils/dateStringsHelper";
 
 declare module "@tanstack/table-core" {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
@@ -23,17 +24,37 @@ const RowMenu: React.FC<RowMenuProps> = ({ transaction }) => {
   const utils = trpc.useContext();
   const { mutate } = trpc.transaction.delete.useMutation({
     onMutate: async ({ id }) => {
-      await utils.transaction.getAll.cancel();
-      const previousTransacions = utils.transaction.getAll.getData();
+      const monthLater = new Date(transaction.date);
+      monthLater.setMonth(monthLater.getMonth() + 1);
+      const periodStart = new Date(`${transaction.date.getFullYear()}-${dateStringHelper.getMonthString(transaction.date)}`);
+      const periodEnd = new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`);
+
+      await utils.transaction.getInDates.cancel({ periodStart, periodEnd });
+      const previousTransacions = utils.transaction.getInDates.getData({ periodStart, periodEnd });
       if (previousTransacions) {
-        utils.transaction.getAll.setData(previousTransacions.filter((t) => t.id !== id));
+        utils.transaction.getInDates.setData(
+          { periodStart, periodEnd },
+          previousTransacions.filter((t) => t.id !== id)
+        );
       }
       return previousTransacions;
     },
     onError: (error, variables, context) => {
-      utils.transaction.getAll.setData(context);
+      const monthLater = new Date(transaction.date);
+      monthLater.setMonth(monthLater.getMonth() + 1);
+      const periodStart = new Date(`${transaction.date.getFullYear()}-${dateStringHelper.getMonthString(transaction.date)}`);
+      const periodEnd = new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`);
+
+      utils.transaction.getInDates.setData({ periodStart, periodEnd }, context);
     },
-    onSuccess: () => utils.transaction.getAll.invalidate(),
+    onSuccess: () => {
+      const monthLater = new Date(transaction.date);
+      monthLater.setMonth(monthLater.getMonth() + 1);
+      const periodStart = new Date(`${transaction.date.getFullYear()}-${dateStringHelper.getMonthString(transaction.date)}`);
+      const periodEnd = new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`);
+
+      utils.transaction.getInDates.invalidate({ periodStart, periodEnd });
+    },
   });
 
   return (
@@ -102,21 +123,25 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({ data }) => {
     let dataToSearchIn = data;
     filterWords.forEach((filterWord) => {
       dataToSearchIn = dataToSearchIn.filter((transaction) => {
-        const nameMatch = filterBy.includes('Name') &&
+        const nameMatch =
+          filterBy.includes("Name") &&
           transaction.name
             .toLowerCase()
             .split(" ")
             .findIndex((nameWord) => nameWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const categoryMatch = filterBy.includes('Category') &&
+        const categoryMatch =
+          filterBy.includes("Category") &&
           transaction.category?.name
             .toLowerCase()
             .split(" ")
             .findIndex((categoryWord) => categoryWord.startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const valueMatch = filterBy.includes('Value') &&
+        const valueMatch =
+          filterBy.includes("Value") &&
           (transaction.isExpense ? formatNumber(-transaction.value * transaction.fxRate) : formatNumber(transaction.value * transaction.fxRate))
             .split(" ")
             .findIndex((valueString) => valueString.toLowerCase().startsWith(filterWord.toLocaleLowerCase())) !== -1;
-        const dateMatch = filterBy.includes('Date') &&
+        const dateMatch =
+          filterBy.includes("Date") &&
           transaction.date
             .toLocaleDateString()
             .split(" ")

@@ -41,6 +41,8 @@ model Transaction {
   categoryId             String?
   recurringTransaction   RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id])
   recurringTransactionId String?
+
+  @@index(fields: [date])
 }
 
 model RecurringTransaction {

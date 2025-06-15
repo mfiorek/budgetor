@@ -9,6 +9,26 @@ export const transactionRouter = router({
       },
     });
   }),
+  getInDates: protectedProcedure
+    .input(
+      z.object({
+        periodStart: z.date(),
+        periodEnd: z.date(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.transaction.findMany({
+        where: {
+          date: {
+            gte: input.periodStart,
+            lt: input.periodEnd,
+          },
+        },
+        include: {
+          category: true,
+        },
+      });
+    }),
   upsert: protectedProcedure
     .input(
       z.object({

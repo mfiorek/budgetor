@@ -47,11 +47,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
   const utils = trpc.useContext();
   const { mutate: mutateUpsertTransacion } = trpc.transaction.upsert.useMutation({
     onMutate: async ({ id, isExpense, name, categoryId, date, value, isFX, fxRate, fxSymbol }) => {
-      await utils.transaction.getAll.cancel();
-      const previousTransacions = utils.transaction.getAll.getData();
+      const monthLater = new Date(date);
+      monthLater.setMonth(monthLater.getMonth() + 1);
+      const periodStart = new Date(`${date.getFullYear()}-${dateStringHelper.getMonthString(date)}`);
+      const periodEnd = new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`);
+
+      await utils.transaction.getInDates.cancel({ periodStart, periodEnd });
+      const previousTransacions = utils.transaction.getInDates.getData({ periodStart, periodEnd });
       const previousCategories = utils.category.getAll.getData();
       if (previousTransacions && previousCategories) {
-        utils.transaction.getAll.setData([
+        utils.transaction.getInDates.setData({ periodStart, periodEnd }, [
           ...(editingTransaction ? previousTransacions.filter((t) => t.id !== id) : previousTransacions),
           {
             id,
@@ -73,9 +78,21 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ editingTransaction, c
       return previousTransacions;
     },
     onError: (error, variables, context) => {
-      utils.transaction.getAll.setData(context);
+      const monthLater = new Date(variables.date);
+      monthLater.setMonth(monthLater.getMonth() + 1);
+      const periodStart = new Date(`${variables.date.getFullYear()}-${dateStringHelper.getMonthString(variables.date)}`);
+      const periodEnd = new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`);
+
+      utils.transaction.getInDates.setData({ periodStart, periodEnd }, context);
     },
-    onSuccess: () => utils.transaction.getAll.invalidate(),
+    onSuccess: ({ date }) => {
+      const monthLater = new Date(date);
+      monthLater.setMonth(monthLater.getMonth() + 1);
+      const periodStart = new Date(`${date.getFullYear()}-${dateStringHelper.getMonthString(date)}`);
+      const periodEnd = new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`);
+
+      utils.transaction.getInDates.invalidate({ periodStart, periodEnd });
+    },
   });
 
   const handleAdd: SubmitHandler<Transaction> = (data) => {

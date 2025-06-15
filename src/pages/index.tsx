@@ -19,9 +19,9 @@ const Home: NextPage = () => {
   const [periodEnd, setPeriodEnd] = useState<Date>(new Date(`${monthLater.getFullYear()}-${dateStringHelper.getMonthString(monthLater)}`));
 
   useTrpcSession({ authRequired: true });
-  const { data: check } = trpc.recurringTransaction.check.useQuery(undefined, { staleTime: 1000 * 60 * 60 * 24 });
-  const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getAll.useQuery(undefined, { enabled: check !== undefined, staleTime: 1000 * 60 * 5 });
+  trpc.recurringTransaction.check.useQuery(undefined, { staleTime: 1000 * 60 * 60 * 24 });
   const { data: categoriesData, isLoading: isCategoriesLoading } = trpc.category.getAll.useQuery(undefined, { staleTime: 1000 * 60 * 5 });
+  const { data: transactionsData, isLoading: isTransactionsLoading } = trpc.transaction.getInDates.useQuery({ periodStart, periodEnd }, { staleTime: 1000 * 60 * 5 });
 
   if (isTransactionsLoading || isCategoriesLoading || !transactionsData || !categoriesData) {
     return (
@@ -45,7 +45,7 @@ const Home: NextPage = () => {
   return (
     <Layout>
       <div className="flex w-full flex-col gap-4">
-        <MonthSelector transactions={transactionsData} setPeriodStart={setPeriodStart} setPeriodEnd={setPeriodEnd} />
+        <MonthSelector selectedDate={periodStart} setPeriodStart={setPeriodStart} setPeriodEnd={setPeriodEnd} />
         <TotalSummary income={income} expense={expense} />
         <ChartjsDoughnut transactionsData={transactionsData} periodStart={periodStart} periodEnd={periodEnd} income={income} expense={expense} />
       </div>

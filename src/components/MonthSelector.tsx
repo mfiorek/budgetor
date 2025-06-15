@@ -1,17 +1,30 @@
 import React, { useState, type Dispatch, type SetStateAction } from "react";
-import { type Transaction } from "@prisma/client";
 import { Listbox } from "@headlessui/react";
 import dateStringHelper from "../utils/dateStringsHelper";
 
+function dateRange() {
+  let start = new Date("2022-11");
+  const end = new Date();
+  const dates = [];
+  while (start <= end) {
+    const displayMonth = start.getUTCMonth() + 1;
+    dates.push([start.getUTCFullYear(), displayMonth.toString().padStart(2, "0")].join("-"));
+
+    start = new Date(start.setUTCMonth(displayMonth));
+  }
+
+  return dates;
+}
+
 interface MonthSelectorProps {
-  transactions: Transaction[];
+  selectedDate: Date;
   setPeriodStart: Dispatch<SetStateAction<Date>>;
   setPeriodEnd: Dispatch<SetStateAction<Date>>;
 }
 
-const MonthSelector: React.FC<MonthSelectorProps> = ({ transactions, setPeriodStart, setPeriodEnd }) => {
-  const [selectedMonth, setSelectedMonth] = useState<string>(`${new Date().getFullYear()}-${dateStringHelper.getMonthString(new Date())}`);
-  const monthStrings = new Set<string>(transactions.map((transaction) => `${transaction.date.getFullYear()}-${dateStringHelper.getMonthString(transaction.date)}`));
+const MonthSelector: React.FC<MonthSelectorProps> = ({ selectedDate, setPeriodStart, setPeriodEnd }) => {
+  const [selectedMonth, setSelectedMonth] = useState<string>(`${selectedDate.getFullYear()}-${dateStringHelper.getMonthString(selectedDate)}`);
+  const monthStrings = dateRange();
   const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   const handleSelect = (month: string) => {
@@ -25,7 +38,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({ transactions, setPeriodSt
   };
 
   return (
-    <div className="w-max mx-auto">
+    <div className="mx-auto w-max">
       <Listbox value={selectedMonth} onChange={handleSelect}>
         <div className="relative">
           <Listbox.Button className="flex w-full cursor-pointer items-center justify-center gap-2 text-3xl font-bold">
